@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulario de Reserva</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #001219;
+            color: #e9d8a6;
+        }
+        .container {
+            max-width: 600px;
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #005f73;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #94d2bd;
+        }
+        .form-group label {
+            color: #e9d8a6;
+        }
+        .form-control {
+            background-color: #0a9396;
+            color: #e9d8a6;
+            border: 1px solid #94d2bd;
+        }
+        .form-control::placeholder {
+            color: #94d2bd;
+        }
+        .btn-primary {
+            background-color: #ee9b00;
+            border: none;
+        }
+        .btn-primary:hover {
+            background-color: #ca6702;
+        }
+        .btn-secondary {
+            background-color: #9b2226;
+            border: none;
+        }
+        .btn-secondary:hover {
+            background-color: #ae2012;
+        }
+        .pax-group {
+            background-color: #bb3e03;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+        .pax-group h5 {
+            color: #e9d8a6;
+        }
+        .pax-group label {
+            color: #e9d8a6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Formulario de Reserva</h2>
+        <form id="reservaForm" action="https://script.google.com/macros/s/AKfycby175eIcbn5E0IfAbVIIDQKaHzX2-Vdh-vDqxjusyia0MYm5xI8EMkdzcos0zlxGOw/exec" method="post" >
+            <div class="section-primary">
+                <div class="form-group">
+                    <label for="nReserva">N° Reserva</label>
+                    <input type="text" class="form-control" id="nReserva" name="nReserva" readonly required>
+                </div>
+                <div class="form-group">
+                    <label for="cantidadDias">Cantidad Días Alquiler</label>
+                    <input type="number" class="form-control" id="cantidadDias" name="cantidadDias" required>
+                </div>
+                <div class="form-group">
+                    <label for="vendedor">Vendedor</label>
+                    <select class="form-control" id="vendedor" name="vendedor" required>
+                        <option value="">Seleccione</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="nPax">N° Pax</label>
+                    <input type="number" class="form-control" id="nPax" name="nPax" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="nombre">Nombre</label>
+                    <input type="text" class="form-control" id="nombre" name="nombre">
+                </div>
+                
+            </div>
+            <div id="paxFields"></div>
+            <div class="section-primary">
+                <div class="form-group">
+                    <label for="valorClase">Valor Clase</label>
+                    <input type="text" class="form-control" id="valorClase" name="valorClase" oninput="this.value = this.value.replace(/^(\$|)/, '$')">
+                </div>
+                <div class="form-group">
+                    <label for="montoTotal">Monto Total</label>
+                    <input type="text" class="form-control" id="montoTotal" name="montoTotal" oninput="this.value = this.value.replace(/^(\$|)/, '$')" required>
+                </div>
+                <div class="form-group">
+                    <label for="observaciones">Observaciones</label>
+                    <textarea class="form-control" id="observaciones" name="observaciones" rows="3"></textarea>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block" id="BotonSub">Enviar</button>
+            <button type="button" class="btn btn-secondary btn-block" id="clearForm">Limpiar</button>
+        </form>
+    </div>
+    
+    <script>
+        // Fetch vendedores and initialize dropdown
+        const vendedores = ['vaquero', 'turbo', 'luisa', 'dudu', 'chelo', 'lucas', 'fisu', 'nico', 'nuestro', 'lucho'];
+        const vendedorSelect = document.getElementById('vendedor');
+        vendedores.forEach(vendedor => {
+            const option = document.createElement('option');
+            option.value = vendedor;
+            option.textContent = vendedor;
+            vendedorSelect.appendChild(option);
+        });
+
+       
+
+        // Function to generate pax fields
+        document.getElementById('nPax').addEventListener('input', function() {
+            const nPax = parseInt(this.value) || 0;
+            const paxFieldsContainer = document.getElementById('paxFields');
+            paxFieldsContainer.innerHTML = '';
+
+            for (let i = 1; i <= nPax; i++) {
+                const paxFields = document.createElement('div');
+                paxFields.className = 'pax-group';
+
+                paxFields.innerHTML = `
+                    <h5>Pasajero ${i}</h5>
+                  
+                    <div class="form-group">
+                        <label for="tablas${i}">Tablas</label>
+                        <select class="form-control" id="tablas${i}" name="tablas${i}">
+                            <option value="">Seleccione</option>
+                            <option value="ski completo head">ski completo head</option>
+                            <option value="ski completo fisher">ski completo fisher</option>
+                            <option value="ski completo volk">ski completo volk</option>
+                            <option value="ski junior">ski junior</option>
+                            <option value="bastones">bastones</option>
+                            <option value="snow completo">snow completo</option>
+                            <option value="tabla snow">tabla snow</option>
+                            <option value="tabla ski">tabla ski</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="botas${i}">Botas</label>
+                        <select class="form-control" id="botas${i}" name="botas${i}">
+                            <option value="">Seleccione</option>
+                            <option value="ski completo head">ski completo head</option>
+                            <option value="ski completo fisher">ski completo fisher</option>
+                            <option value="ski completo volk">ski completo volk</option>
+                            <option value="ski junior">ski junior</option>
+                            <option value="snow botas">snow botas</option>
+                            <option value="ski botas">ski botas</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="ropa${i}">Ropa</label>
+                        <select class="form-control" id="ropa${i}" name="ropa${i}">
+                            <option value="">Seleccione</option>
+                            <option value="ropa completo">ropa completo</option>
+                            <option value="campera">campera</option>
+                            <option value="pantalon">pantalon</option>
+                            <option value="guantes">guantes</option>
+                            <option value="pre-ski">pre-ski</option>
+                            <option value="Pant - guan">Pant - guan</option>
+                            <option value="Pant - guan - pre ski">Pant - guan - pre ski</option>
+                            <option value="pant - pre ski">pant - pre ski</option>
+                            <option value="camp - guantes">camp - guantes</option>
+                            <option value="camp - guantes - pre ski">camp - guantes - pre ski</option>
+                            <option value="camp - pre ski">camp - pre ski</option>
+                           
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="casco${i}">Casco y Antiparra (trineos y culi patin)</label>
+                        <select class="form-control" id="casco${i}" name="casco${i}">
+                            <option value="">Seleccione</option>
+                            <option value="Casco y Antiparras">Casco y Antiparras</option>
+                            <option value="casco">casco</option>
+                            <option value="antiparra">antiparra</option>
+                            <option value="trineo">trineo</option>
+                            <option value="culi patin">culi patin</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="clases${i}">Clases</label>
+                        <select class="form-control" id="clases${i}" name="clases${i}">
+                            <option value="">Seleccione</option>
+                            <option value="sin clase">sin clase</option>
+                            <option value="ski grupal">ski grupal</option>
+                            <option value="snow grupal">snow grupal</option>
+                            <option value="ski privado">ski privado</option>
+                            <option value="snow privado">snow privado</option>
+
+                        </select>
+                    </div>
+                `;
+                paxFieldsContainer.appendChild(paxFields);
+            }
+        });
+
+
+        document.getElementById('reservaForm').addEventListener('submit', function(event) {
+  event.preventDefault(); // Evitar que el formulario se envíe de la manera tradicional
+
+  var form = event.target;
+  var formData = new FormData(form);
+
+  fetch(form.action, {
+    method: 'POST',
+    body: formData
+  })
+  .then(response => response.text())
+  .then(result => {
+    if (result === 'Success') {
+      alert('Formulario enviado exitosamente.');
+      form.reset(); // Limpia el formulario
+      document.getElementById('paxFields').innerHTML = ''; // Limpia los campos dinámicos
+      document.getElementById('nReserva').value = 'X' + Math.floor(Math.random() * 10000);
+    } else {
+      alert('Hubo un error al enviar el formulario: ' + result);
+    }
+  })
+  .catch(error => {
+    console.error('Error en la solicitud fetch:', error);
+    alert('Hubo un error: ' + error);
+  });
+});
+      
+         // submit & Clear form functionality
+         document.getElementById('clearForm').addEventListener('click', function() {
+            document.getElementById('reservaForm').reset();
+            document.getElementById('paxFields').innerHTML = '';
+        });
+                // Function to generate a random reservation number (could be replaced by actual logic)
+                document.getElementById('nReserva').value = 'X' + Math.floor(Math.random() * 10000);
+
+
+
+
+    </script>
+</body>
+</html>
