@@ -29,7 +29,7 @@
         }
         .form-control {
             background-color: #0a9396;
-            color: #e9d8a6;
+            color: #ebb81f;
             border: 1px solid #94d2bd;
         }
         .form-control::placeholder {
@@ -244,8 +244,9 @@
             document.getElementById('reservaForm').reset();
             document.getElementById('paxFields').innerHTML = '';
         });
-                // Function to generate a random reservation number (could be replaced by actual logic)
-                document.getElementById('nReserva').value = 0 + Math.floor(Math.random() * 10000);
+               // Function to generate a random reservation number with a leading 0
+document.getElementById('nReserva').value = '0' + Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+
 
 
 
