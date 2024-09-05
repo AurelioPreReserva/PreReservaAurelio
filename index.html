@@ -6,61 +6,76 @@
     <title>Formulario de Reserva</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #001219;
-            color: #e9d8a6;
-        }
-        .container {
-            max-width: 600px;
-            margin-top: 20px;
-            padding: 20px;
-            background-color: #005f73;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-        h2 {
-            text-align: center;
-            margin-bottom: 20px;
-            color: #94d2bd;
-        }
-        .form-group label {
-            color: #e9d8a6;
-        }
-        .form-control {
-            background-color: #0a9396;
-            color: #ebb81f;
-            border: 1px solid #94d2bd;
-        }
-        .form-control::placeholder {
-            color: #94d2bd;
-        }
-        .btn-primary {
-            background-color: #ee9b00;
-            border: none;
-        }
-        .btn-primary:hover {
-            background-color: #ca6702;
-        }
-        .btn-secondary {
-            background-color: #9b2226;
-            border: none;
-        }
-        .btn-secondary:hover {
-            background-color: #ae2012;
-        }
-        .pax-group {
-            background-color: #bb3e03;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 10px;
-        }
-        .pax-group h5 {
-            color: #e9d8a6;
-        }
-        .pax-group label {
-            color: #e9d8a6;
-        }
+       @import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&display=swap');
+
+body {
+    font-family: 'Merriweather', serif;
+    background-color: #003049;
+    color: #FDF0D5;
+}
+
+.container {
+    max-width: 600px;
+    margin-top: 20px;
+    padding: 20px;
+    background-color: #669BBC;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #C1121F;
+}
+
+.form-group label {
+    color: #FDF0D5;
+}
+
+.form-control {
+    background-color: #780000;
+    color: #FDF0D5;
+    border: 1px solid #C1121F;
+}
+
+.form-control::placeholder {
+    color: #FDF0D5;
+}
+
+.btn-primary {
+    background-color: #C1121F;
+    border: none;
+}
+
+.btn-primary:hover {
+    background-color: #780000;
+}
+
+.btn-secondary {
+    background-color: #003049;
+    border: none;
+}
+
+.btn-secondary:hover {
+    background-color: #669BBC;
+}
+
+.pax-group {
+    background-color: #780000;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+}
+
+.pax-group h5 {
+    color: #FDF0D5;
+}
+
+.pax-group label {
+    color: #FDF0D5;
+}
+
     </style>
 </head>
 <body>
@@ -115,7 +130,8 @@
     
     <script>
         // Fetch vendedores and initialize dropdown
-        const vendedores = ['vaquero', 'turbo', 'luisa', 'dudu', 'chelo', 'lucas', 'fisu', 'nico', 'nuestro', 'lucho'];
+        const vendedores = ['VAQUERO', 'TURBO', 'LUISA', 'DUDU', 'CHELO', 'LUCAS', 'FISU', 'NICO', 'NUESTRO', 'LUCHO'
+];
         const vendedorSelect = document.getElementById('vendedor');
         vendedores.forEach(vendedor => {
             const option = document.createElement('option');
@@ -173,7 +189,7 @@
                             <option value="CAMPERA">CAMPERA</option>
                             <option value="PANTALON">PANTALON</option>
                             <option value="GUANTES">GUANTES</option>
-                            <option value="PRE-SKI">PRE-SKI</option>
+                            <option value="PRE - SKI">PRE - SKI</option>
                             <option value="PANT - GUAN">PANT - GUAN</option>
                             <option value="PANT - GUAN - PRE SKI">PANT - GUAN - PRE SKI</option>
                             <option value="PANT - PRE SKI">PANT - PRE SKI</option>
@@ -188,7 +204,7 @@
                             <option value="">SELECCIONE</option>
                             <option value="CASCO Y ANTIPARRAS">CASCO Y ANTIPARRAS</option>
                             <option value="CASCO">CASCO</option>
-                            <option value="ANTIPARRA">ANTIPARRA</option>
+                            <option value="ANTIPARRAS">ANTIPARRAS</option>
                             <option value="TRINEO MEDIANO">TRINEO MEDIANO</option>
                             <option value="TRINEO DOBLE">TRINEO DOBLE</option>
                             <option value="CULI PATIN">CULI PATIN</option>
@@ -201,8 +217,8 @@
                             <option value="SIN CLASE">SIN CLASE</option>
                             <option value="SKI GRUPAL">SKI GRUPAL</option>
                             <option value="SNOW GRUPAL">SNOW GRUPAL</option>
-                            <option value="SKI PRIVADO">SKI PRIVADO</option>
-                            <option value="SNOW PRIVADO">SNOW PRIVADO</option>
+                            <option value="SKI PRIVADA">SKI PRIVADO</option>
+                            <option value="SNOW PRIVADA">SNOW PRIVADO</option>
                         </select>
                     </div>
 
