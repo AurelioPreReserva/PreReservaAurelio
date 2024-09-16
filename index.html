@@ -84,6 +84,10 @@ h2 {
         <form id="reservaForm" action="https://script.google.com/macros/s/AKfycby175eIcbn5E0IfAbVIIDQKaHzX2-Vdh-vDqxjusyia0MYm5xI8EMkdzcos0zlxGOw/exec" method="post" >
             <div class="section-primary">
                 <div class="form-group">
+                    <label for="fechaHoy">Fecha</label>
+                    <input type="text" id="fechaHoy" name="fechaHoy" class="form-control" value="" readonly>
+                </div>
+                <div class="form-group">
                     <label for="nReserva">N° Reserva</label>
                     <input type="text" class="form-control" id="nReserva" name="nReserva" readonly required>
                 </div>
@@ -112,23 +116,56 @@ h2 {
             <div class="section-primary">
                 <div class="form-group">
                     <label for="valorClase">Valor Clase</label>
-                    <input type="text" class="form-control" id="valorClase" name="valorClase" oninput="this.value = this.value.replace(/^(\$|)/, '$')">
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="valorClase" name="valorClase">
+                    </div>
                 </div>
+                
                 <div class="form-group">
                     <label for="montoTotal">Monto Total</label>
-                    <input type="text" class="form-control" id="montoTotal" name="montoTotal" oninput="this.value = this.value.replace(/^(\$|)/, '$')" required>
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="montoTotal" name="montoTotal" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="estadoPago">Estado de Pago</label>
+                    <select class="form-control" id="estadoPago" name="estadoPago"  required onchange="togglePagoTotal()">
+                        <option value="">Seleccione</option>
+                        <option value="COBRADO">COBRADO</option>
+                        <option value="NO PAGO">NO PAGO</option>
+                    </select>
+                </div>
+                
+                <!-- Opción de Pago Total -->
+                <div class="form-group" id="pagoTotalGroup" style="display: none;">
+                    <label for="pagoTotal">¿El pago fue total?</label>
+                    <select class="form-control" id="pagoTotal" name="pagoTotal" onchange="toggleMontoPago()">
+                        <option value="">Seleccione</option>
+                        <option value="SI">SI</option>
+                        <option value="NO">NO</option>
+                    </select>
+                </div>
+                 <!-- Casilla para Monto del Pago Parcial -->
+                <div class="form-group" id="montoPagoGroup" style="display: none;">
+                    <label for="montoPago">Monto del Pago</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="montoPago" name="montoPago" placeholder="Ingrese el monto del pago">
+                    </div>
                 </div>
                 <div class="form-group">
                     <label for="observaciones">Observaciones</label>
                     <textarea class="form-control" id="observaciones" name="observaciones" rows="3"></textarea>
                 </div>
+                <button type="submit" class="btn btn-primary btn-block" id="BotonSub">Enviar</button>
+                <button type="button" class="btn btn-secondary btn-block" id="clearForm">Limpiar</button>
             </div>
-            <button type="submit" class="btn btn-primary btn-block" id="BotonSub">Enviar</button>
-            <button type="button" class="btn btn-secondary btn-block" id="clearForm">Limpiar</button>
+            
         </form>
     </div>
     
     <script>
+         const today = new Date().toISOString().slice(0, 10);
+         document.getElementById('fechaHoy').value = today;
         // Fetch vendedores and initialize dropdown
         const vendedores = ['VAQUERO', 'TURBO', 'LUISA', 'DUDU', 'CHELO', 'LUCAS', 'FISU', 'NICO', 'NUESTRO', 'LUCHO'
 ];
@@ -227,6 +264,56 @@ h2 {
             }
         });
 
+         // Función para formatear como moneda con el formato de pesos argentinos
+    function formatCurrency(input) {
+        let value = input.value.replace(/\D/g, ''); // Eliminar todo lo que no sea número
+        if (value) {
+            value = parseFloat(value).toLocaleString('es-AR', { style: 'currency', currency: 'ARS' });
+        }
+        input.value = value;
+    }
+
+    // Aplicar el formato en cada campo de entrada al perder el foco (cuando el usuario deja el campo)
+    document.getElementById('montoPago').addEventListener('blur', function() {
+        formatCurrency(this);
+    });
+
+    document.getElementById('valorClase').addEventListener('blur', function() {
+        formatCurrency(this);
+    });
+
+    document.getElementById('montoTotal').addEventListener('blur', function() {
+        formatCurrency(this);
+    });
+    
+  // Función para mostrar la opción de Pago Total si se selecciona "COBRADO"
+  function togglePagoTotal() {
+        var estadoPago = document.getElementById('estadoPago').value;
+        var pagoTotalGroup = document.getElementById('pagoTotalGroup');
+        
+        if (estadoPago === 'COBRADO') {
+            pagoTotalGroup.style.display = 'block';
+        } else {
+            pagoTotalGroup.style.display = 'none';
+            document.getElementById('pagoTotal').value = '';  // Resetea el campo si no está visible
+            toggleMontoPago();  // Oculta el campo de monto si está visible
+        }
+    }
+
+    // Función para mostrar la casilla de monto si "Pago Total" es "NO"
+    function toggleMontoPago() {
+        var pagoTotal = document.getElementById('pagoTotal').value;
+        var montoPagoGroup = document.getElementById('montoPagoGroup');
+        
+        if (pagoTotal === 'NO') {
+            montoPagoGroup.style.display = 'block';
+        } else {
+            montoPagoGroup.style.display = 'none';
+            document.getElementById('montoPago').value = '';  // Resetea el campo si no está visible
+        }
+    }
+
+
 
         document.getElementById('reservaForm').addEventListener('submit', function(event) {
   event.preventDefault(); // Evitar que el formulario se envíe de la manera tradicional
@@ -244,7 +331,7 @@ h2 {
       alert('Formulario enviado exitosamente.');
       form.reset(); // Limpia el formulario
       document.getElementById('paxFields').innerHTML = ''; // Limpia los campos dinámicos
-      document.getElementById('nReserva').value = '0' + Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+      document.getElementById('nReserva').value = '0' + Math.floor(Math.random() * 100000).toString().padStart(5, '0');
     } else {
       alert('Hubo un error al enviar el formulario: ' + result);
     }
@@ -261,7 +348,7 @@ h2 {
             document.getElementById('paxFields').innerHTML = '';
         });
                // Function to generate a random reservation number with a leading 0
-document.getElementById('nReserva').value = '0' + Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+document.getElementById('nReserva').value = '0' + Math.floor(Math.random() * 100000).toString().padStart(5, '0');
 
 
 
