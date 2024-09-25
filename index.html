@@ -117,14 +117,14 @@ h2 {
                 <div class="form-group">
                     <label for="valorClase">Valor Clase</label>
                     <div class="input-group">
-                        <input type="text" class="form-control" id="valorClase" name="valorClase">
+                        <input type="number" class="form-control" id="valorClase" name="valorClase">
                     </div>
                 </div>
                 
                 <div class="form-group">
                     <label for="montoTotal">Monto Total</label>
                     <div class="input-group">
-                        <input type="text" class="form-control" id="montoTotal" name="montoTotal" required>
+                        <input type="number" class="form-control" id="montoTotal" name="montoTotal" required>
                     </div>
                 </div>
                 <div class="form-group">
@@ -149,7 +149,7 @@ h2 {
                 <div class="form-group" id="montoPagoGroup" style="display: none;">
                     <label for="montoPago">Monto del Pago</label>
                     <div class="input-group">
-                        <input type="text" class="form-control" id="montoPago" name="montoPago" placeholder="Ingrese el monto del pago">
+                        <input type="number" class="form-control" id="montoPago" name="montoPago" placeholder="Ingrese el monto del pago">
                     </div>
                 </div>
                 <div class="form-group">
@@ -264,27 +264,6 @@ h2 {
             }
         });
 
-         // Función para formatear como moneda con el formato de pesos argentinos
-    function formatCurrency(input) {
-        let value = input.value.replace(/\D/g, ''); // Eliminar todo lo que no sea número
-        if (value) {
-            value = parseFloat(value).toLocaleString('es-AR', { style: 'currency', currency: 'ARS' });
-        }
-        input.value = value;
-    }
-
-    // Aplicar el formato en cada campo de entrada al perder el foco (cuando el usuario deja el campo)
-    document.getElementById('montoPago').addEventListener('blur', function() {
-        formatCurrency(this);
-    });
-
-    document.getElementById('valorClase').addEventListener('blur', function() {
-        formatCurrency(this);
-    });
-
-    document.getElementById('montoTotal').addEventListener('blur', function() {
-        formatCurrency(this);
-    });
     
   // Función para mostrar la opción de Pago Total si se selecciona "COBRADO"
   function togglePagoTotal() {
