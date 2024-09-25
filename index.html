@@ -76,6 +76,8 @@ h2 {
     color: #FDF0D5;
 }
 
+
+
     </style>
 </head>
 <body>
@@ -117,14 +119,14 @@ h2 {
                 <div class="form-group">
                     <label for="valorClase">Valor Clase</label>
                     <div class="input-group">
-                        <input type="number" class="form-control" id="valorClase" name="valorClase">
+                        <span>$</span> <input type="number" class="form-control" id="valorClase" name="valorClase">
                     </div>
                 </div>
                 
                 <div class="form-group">
                     <label for="montoTotal">Monto Total</label>
                     <div class="input-group">
-                        <input type="number" class="form-control" id="montoTotal" name="montoTotal" required>
+                        <span>$</span><input type="number" class="form-control" id="montoTotal" name="montoTotal" required>
                     </div>
                 </div>
                 <div class="form-group">
@@ -149,7 +151,7 @@ h2 {
                 <div class="form-group" id="montoPagoGroup" style="display: none;">
                     <label for="montoPago">Monto del Pago</label>
                     <div class="input-group">
-                        <input type="number" class="form-control" id="montoPago" name="montoPago" placeholder="Ingrese el monto del pago">
+                        <span>$</span><input type="number" class="form-control" id="montoPago" name="montoPago" placeholder="Ingrese el monto del pago" >
                     </div>
                 </div>
                 <div class="form-group">
@@ -264,8 +266,42 @@ h2 {
             }
         });
 
+ 
+        function togglePagoTotal() {
+        const estadoPago = document.getElementById('estadoPago').value;
+        const pagoTotalGroup = document.getElementById('pagoTotalGroup');
+        
+        // Mostrar o esconder el campo de "Pago Total" basado en el estado del pago
+        if (estadoPago === 'COBRADO') {
+            pagoTotalGroup.style.display = 'block';
+        } else {
+            pagoTotalGroup.style.display = 'none';
+            toggleMontoPago();  // Ocultar el monto del pago si se cambia el estado de pago
+        }
+    }
+
+    function toggleMontoPago() {
+        const pagoTotal = document.getElementById('pagoTotal').value;
+        const montoPagoGroup = document.getElementById('montoPagoGroup');
+        const montoTotal = document.getElementById('montoTotal').value;
+        const montoPago = document.getElementById('montoPago');
+        
+        if (pagoTotal === 'SI') {
+            montoPagoGroup.style.display = 'block';
+            // Copiar el valor de "Monto Total" a "Monto del Pago" automáticamente
+            montoPago.value = montoTotal;
+            montoPago.setAttribute('readonly', true);  // Hacer que el campo de pago sea de solo lectura
+        } else if (pagoTotal === 'NO') {
+            montoPagoGroup.style.display = 'block';
+            montoPago.removeAttribute('readonly');  // Habilitar edición para pagos parciales
+            montoPago.value = '';  // Limpiar el campo para pagos parciales
+        } else {
+            montoPagoGroup.style.display = 'none';
+            montoPago.value = '';  // Limpiar el campo si no hay selección
+        }
+    }
     
-  // Función para mostrar la opción de Pago Total si se selecciona "COBRADO"
+        /*/// Función para mostrar la opción de Pago Total si se selecciona "COBRADO"
   function togglePagoTotal() {
         var estadoPago = document.getElementById('estadoPago').value;
         var pagoTotalGroup = document.getElementById('pagoTotalGroup');
@@ -290,8 +326,7 @@ h2 {
             montoPagoGroup.style.display = 'none';
             document.getElementById('montoPago').value = '';  // Resetea el campo si no está visible
         }
-    }
-
+    }*/
 
 
         document.getElementById('reservaForm').addEventListener('submit', function(event) {
@@ -311,6 +346,7 @@ h2 {
       form.reset(); // Limpia el formulario
       document.getElementById('paxFields').innerHTML = ''; // Limpia los campos dinámicos
       document.getElementById('nReserva').value = '0' + Math.floor(Math.random() * 100000).toString().padStart(5, '0');
+      document.getElementById('fechaHoy').value = today;
     } else {
       alert('Hubo un error al enviar el formulario: ' + result);
     }
@@ -325,10 +361,13 @@ h2 {
          document.getElementById('clearForm').addEventListener('click', function() {
             document.getElementById('reservaForm').reset();
             document.getElementById('paxFields').innerHTML = '';
+            document.getElementById('nReserva').value = '0' + Math.floor(Math.random() * 100000).toString().padStart(5, '0');
+            document.getElementById('fechaHoy').value = today;
         });
-               // Function to generate a random reservation number with a leading 0
-document.getElementById('nReserva').value = '0' + Math.floor(Math.random() * 100000).toString().padStart(5, '0');
+               // Function to generate a random reservation number with a leading 0 
 
+document.getElementById('nReserva').value = '0' + Math.floor(Math.random() * 100000).toString().padStart(5, '0');
+ 
 
 
 
