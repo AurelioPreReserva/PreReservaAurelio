@@ -301,33 +301,7 @@ h2 {
         }
     }
     
-        /*/// Función para mostrar la opción de Pago Total si se selecciona "COBRADO"
-  function togglePagoTotal() {
-        var estadoPago = document.getElementById('estadoPago').value;
-        var pagoTotalGroup = document.getElementById('pagoTotalGroup');
-        
-        if (estadoPago === 'COBRADO') {
-            pagoTotalGroup.style.display = 'block';
-        } else {
-            pagoTotalGroup.style.display = 'none';
-            document.getElementById('pagoTotal').value = '';  // Resetea el campo si no está visible
-            toggleMontoPago();  // Oculta el campo de monto si está visible
-        }
-    }
-
-    // Función para mostrar la casilla de monto si "Pago Total" es "NO"
-    function toggleMontoPago() {
-        var pagoTotal = document.getElementById('pagoTotal').value;
-        var montoPagoGroup = document.getElementById('montoPagoGroup');
-        
-        if (pagoTotal === 'NO') {
-            montoPagoGroup.style.display = 'block';
-        } else {
-            montoPagoGroup.style.display = 'none';
-            document.getElementById('montoPago').value = '';  // Resetea el campo si no está visible
-        }
-    }*/
-
+      
 
         document.getElementById('reservaForm').addEventListener('submit', function(event) {
   event.preventDefault(); // Evitar que el formulario se envíe de la manera tradicional
