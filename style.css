@@ -1,0 +1,161 @@
+/* Variables CSS para los colores de la paleta */
+:root {
+    --color-primary-dark: #283618; /* Verde muy oscuro, casi negro */
+    --color-secondary-olive: #606C38; /* Verde oliva oscuro */
+    --color-accent-orange: #DDA15E; /* Naranja tostado/Mostaza */
+    --color-accent-brown: #BC6C25; /* Marrón rojizo/Cobre */
+    --color-light-cream: #FEFAE0; /* Crema claro */
+
+    /* Colores para texto */
+    --text-color-dark: var(--color-primary-dark);
+    --text-color-light: var(--color-light-cream);
+}
+
+body {
+    font-family: Arial, sans-serif; /* Puedes cambiar la fuente si tienes una específica en mente */
+    background-color: var(--color-light-cream); /* Fondo principal de la página */
+    color: var(--text-color-dark);
+    margin: 0;
+    padding: 20px;
+    box-sizing: border-box; /* Asegura que padding no aumente el tamaño total */
+    min-height: 100vh; /* Para que el fondo cubra toda la altura */
+    display: flex;
+    justify-content: center;
+    align-items: flex-start; /* Alinea al inicio para que el contenido no se centre verticalmente de golpe */
+    padding-top: 40px; /* Espacio superior para el formulario */
+    padding-bottom: 40px; /* Espacio inferior */
+}
+
+.container {
+    background-color: #ffffff; /* Fondo del contenedor principal, blanco para contraste */
+    border-radius: 15px; /* Bordes redondeados como en la imagen */
+    padding: 25px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); /* Sombra suave para un efecto flotante */
+    max-width: 100%; /* Por defecto, ocupa todo el ancho disponible en móvil */
+    margin: 0 auto; /* Centrar el contenedor */
+}
+
+h2 {
+    color: var(--color-accent-brown); /* Título en color cobre */
+    text-align: center;
+    margin-bottom: 25px;
+    font-weight: bold;
+    font-size: 1.8rem; /* Tamaño de fuente adaptable */
+}
+
+h5 {
+    color: var(--color-secondary-olive); /* Títulos de pasajeros en verde oliva */
+    border-bottom: 2px solid var(--color-accent-orange); /* Línea inferior para separar */
+    padding-bottom: 10px;
+    margin-top: 25px;
+    margin-bottom: 20px;
+    font-size: 1.2rem;
+}
+
+.form-group label {
+    font-weight: bold;
+    color: var(--color-primary-dark); /* Etiquetas en verde oscuro */
+    margin-bottom: 5px;
+}
+
+.form-control {
+    border-radius: 8px; /* Bordes más redondeados para los inputs */
+    border: 1px solid #ced4da;
+    padding: 10px 15px;
+    font-size: 1rem;
+    color: var(--text-color-dark);
+    transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.form-control:focus {
+    border-color: var(--color-accent-orange); /* Borde de foco en naranja */
+    box-shadow: 0 0 0 0.2rem rgba(221, 161, 94, 0.25); /* Sombra de foco más suave */
+}
+
+/* Estilo para los input-group (para los campos de monto) */
+.input-group-prepend .input-group-text {
+    background-color: var(--color-secondary-olive); /* Fondo del signo $ */
+    color: var(--text-color-light); /* Color del signo $ */
+    border: 1px solid var(--color-secondary-olive);
+    border-radius: 8px 0 0 8px; /* Bordes redondeados solo a la izquierda */
+}
+
+hr {
+    border-top: 2px solid var(--color-secondary-olive); /* Separador más notorio */
+    margin-top: 30px;
+    margin-bottom: 30px;
+}
+
+.btn-primary {
+    background-color: var(--color-accent-brown); /* Botón principal en color cobre */
+    border-color: var(--color-accent-brown);
+    color: var(--text-color-light); /* Texto en crema claro */
+    font-weight: bold;
+    padding: 12px 20px;
+    border-radius: 8px;
+    margin-top: 20px;
+    transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;
+}
+
+.btn-primary:hover {
+    background-color: var(--color-secondary-olive); /* Hover en verde oliva */
+    border-color: var(--color-secondary-olive);
+    color: var(--text-color-light);
+}
+
+.btn-secondary {
+    background-color: var(--color-secondary-olive); /* Botón secundario en verde oliva */
+    border-color: var(--color-secondary-olive);
+    color: var(--text-color-light);
+    font-weight: bold;
+    padding: 12px 20px;
+    border-radius: 8px;
+    margin-top: 10px;
+    transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;
+}
+
+.btn-secondary:hover {
+    background-color: var(--color-accent-brown); /* Hover en cobre */
+    border-color: var(--color-accent-brown);
+    color: var(--text-color-light);
+}
+
+/* Estilos específicos para la sección de datos primarios (arriba) */
+.section-primary,
+.section-summary {
+    padding-bottom: 15px; /* Pequeño padding para separar visualmente */
+}
+
+
+/* Adaptación para pantallas más grandes (desktops) */
+@media (min-width: 768px) {
+    .container {
+        max-width: 700px; /* Ancho máximo para el formulario en desktop */
+        padding: 40px;
+    }
+
+    h2 {
+        font-size: 2.5rem;
+    }
+
+    h5 {
+        font-size: 1.5rem;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+}
+
+/* Opcional: Algunos ajustes para el layout de los pasajeros en desktop */
+@media (min-width: 768px) {
+    .pax-group .form-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 20px; /* Espacio entre columnas */
+    }
+
+    .pax-group .form-group {
+        flex: 1; /* Para que ocupen el espacio disponible */
+    }
+}
