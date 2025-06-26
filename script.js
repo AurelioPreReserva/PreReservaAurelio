@@ -251,95 +251,103 @@ document.addEventListener('DOMContentLoaded', function() {
     // --- Fin de la lógica de manejo de campos de pago ---
 
 
-    // Handle form submission
-    document.getElementById('reservaForm').addEventListener('submit', function(event) {
-        event.preventDefault(); // Prevent default form submission
+    // ... (resto del script.js)
 
-        const form = event.target;
-        const data = {};
+// Handle form submission
+document.getElementById('reservaForm').addEventListener('submit', function(event) {
+    event.preventDefault(); // Prevent default form submission
 
-        // Collect main form fields based on their 'name' attribute
-        const formElements = form.elements;
-        for (let i = 0; i < formElements.length; i++) {
-            const element = formElements[i];
-            // Excluir elementos sin 'name' o con 'type' de botón/submit
-            if (element.name && !['button', 'submit', 'reset'].includes(element.type)) {
-                data[element.name] = element.value;
-            }
+    const form = event.target;
+    const payload = {}; // Cambiamos 'data' a 'payload' para claridad
+
+    // Collect main form fields based on their 'name' attribute
+    const formElements = form.elements;
+    for (let i = 0; i < formElements.length; i++) {
+        const element = formElements[i];
+        if (element.name && !['button', 'submit', 'reset'].includes(element.type)) {
+            payload[element.name] = element.value;
         }
+    }
 
-        // Manually collect dynamic pax fields, ensuring correct naming for Sheets
-        const numPax = parseInt(document.getElementById('cantidadPasajeros').value) || 0;
-        for (let i = 1; i <= numPax; i++) {
-            data[`TABLAS_PAX${i}`] = document.getElementById(`tablasPax${i}`).value;
-            data[`BOTAS_PAX${i}`] = document.getElementById(`botasPax${i}`).value;
-            data[`ROPA_PAX${i}`] = document.getElementById(`ropaPax${i}`).value;
-            data[`CASCO_Y_ANTIPARRAS_PAX${i}`] = document.getElementById(`cascoAntiparrasPax${i}`).value;
-            data[`CLASES_PAX${i}`] = document.getElementById(`clasesPax${i}`).value;
-            data[`MONTO_ALQUILER_PAX${i}`] = parseFloat(document.getElementById(`montoAlquilerPax${i}`).value) || 0;
-            data[`MONTO_CLASE_PAX${i}`] = parseFloat(document.getElementById(`montoClasePax${i}`).value) || 0;
+    // Manually collect dynamic pax fields, ensuring correct naming for Sheets
+    const numPax = parseInt(document.getElementById('cantidadPasajeros').value) || 0;
+    for (let i = 1; i <= numPax; i++) {
+        payload[`TABLAS_PAX${i}`] = document.getElementById(`tablasPax${i}`).value;
+        payload[`BOTAS_PAX${i}`] = document.getElementById(`botasPax${i}`).value;
+        payload[`ROPA_PAX${i}`] = document.getElementById(`ropaPax${i}`).value;
+        payload[`CASCO_Y_ANTIPARRAS_PAX${i}`] = document.getElementById(`cascoAntiparrasPax${i}`).value;
+        payload[`CLASES_PAX${i}`] = document.getElementById(`clasesPax${i}`).value;
+        payload[`MONTO_ALQUILER_PAX${i}`] = parseFloat(document.getElementById(`montoAlquilerPax${i}`).value) || 0;
+        payload[`MONTO_CLASE_PAX${i}`] = parseFloat(document.getElementById(`montoClasePax${i}`).value) || 0;
+    }
+
+    // Fill in empty pax fields up to PAX15 to match Sheets columns
+    for (let i = numPax + 1; i <= 15; i++) {
+        payload[`TABLAS_PAX${i}`] = '';
+        payload[`BOTAS_PAX${i}`] = '';
+        payload[`ROPA_PAX${i}`] = '';
+        payload[`CASCO_Y_ANTIPARRAS_PAX${i}`] = '';
+        payload[`CLASES_PAX${i}`] = '';
+        payload[`MONTO_ALQUILER_PAX${i}`] = 0;
+        payload[`MONTO_CLASE_PAX${i}`] = 0;
+    }
+
+    // Ensure numeric values are sent as numbers, not strings
+    payload['DIAS'] = parseInt(payload['DIAS']) || 0;
+    payload['CANTIDAD_PASAJEROS'] = parseInt(payload['CANTIDAD_PASAJEROS']) || 0;
+    payload['MONTO_TOTAL_ALQUILER'] = parseFloat(payload['MONTO_TOTAL_ALQUILER']) || 0;
+    payload['MONTO_TOTAL_CLASES'] = parseFloat(payload['MONTO_TOTAL_CLASES']) || 0;
+    payload['DESCUENTO'] = parseFloat(payload['DESCUENTO']) || 0;
+    payload['MONTO_TOTAL_FINAL'] = parseFloat(payload['MONTO_TOTAL_FINAL']) || 0;
+    payload['PAGO_PARCIAL'] = parseFloat(payload['PAGO_PARCIAL']) || 0;
+    payload['RESTA_PAGAR'] = parseFloat(payload['RESTA_PAGAR']) || 0;
+    payload['MONTO_PAGADO'] = parseFloat(payload['MONTO_PAGADO']) || 0;
+
+    // ELIMINAR LA COLUMNA "SITUACION" ANTES DE ENVIAR (se manejará en el backend)
+    delete payload['SITUACION']; 
+
+    // AÑADIR EL CAMPO "ESTADO" (si existe en tu HTML)
+    const estadoInput = document.getElementById('estado');
+    if (estadoInput) {
+        payload['ESTADO'] = estadoInput.value;
+    }
+
+    // --- PREPARAR EL OBJETO DATA PARA EL NUEVO doPost ---
+    const dataToSend = {
+        action: 'addPreReserva', // <--- Especificamos la acción
+        payload: payload        // <--- El objeto con todos tus datos de formulario
+    };
+    // --- FIN PREPARACIÓN ---
+
+    // Send data as JSON, which is easier to parse in Google Apps Script
+    fetch(appsScriptURL, { 
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json' 
+        },
+        body: JSON.stringify(dataToSend) // <--- Enviamos el objeto dataToSend
+    })
+    .then(response => response.json()) // <--- Esperamos JSON de vuelta
+    .then(result => {
+        if (result.success) { // <--- Cambiamos la condición de éxito
+            alert('¡Reserva enviada exitosamente!');
+            form.reset(); 
+            document.getElementById('paxFieldsContainer').innerHTML = ''; 
+            // Si el ID se genera en el backend, no lo generamos aquí
+            // document.getElementById('idPreReserva').value = '0' + Math.floor(Math.random() * 100000).toString().padStart(5, '0');
+            document.getElementById('fechaHoy').value = today;
+            togglePaymentFields(); 
+        } else {
+            alert('Hubo un error al enviar el formulario: ' + result.message); // <--- Mensaje de error del backend
         }
-
-        // Fill in empty pax fields up to PAX15 to match Sheets columns
-        for (let i = numPax + 1; i <= 15; i++) {
-            data[`TABLAS_PAX${i}`] = '';
-            data[`BOTAS_PAX${i}`] = '';
-            data[`ROPA_PAX${i}`] = '';
-            data[`CASCO_Y_ANTIPARRAS_PAX${i}`] = '';
-            data[`CLASES_PAX${i}`] = '';
-            data[`MONTO_ALQUILER_PAX${i}`] = 0;
-            data[`MONTO_CLASE_PAX${i}`] = 0;
-        }
-
-        // Ensure numeric values are sent as numbers, not strings
-        data['DIAS'] = parseInt(data['DIAS']) || 0;
-        data['CANTIDAD_PASAJEROS'] = parseInt(data['CANTIDAD_PASAJEROS']) || 0;
-        data['MONTO_TOTAL_ALQUILER'] = parseFloat(data['MONTO_TOTAL_ALQUILER']) || 0;
-        data['MONTO_TOTAL_CLASES'] = parseFloat(data['MONTO_TOTAL_CLASES']) || 0;
-        data['DESCUENTO'] = parseFloat(data['DESCUENTO']) || 0;
-        data['MONTO_TOTAL_FINAL'] = parseFloat(data['MONTO_TOTAL_FINAL']) || 0;
-        data['PAGO_PARCIAL'] = parseFloat(data['PAGO_PARCIAL']) || 0;
-        data['RESTA_PAGAR'] = parseFloat(data['RESTA_PAGAR']) || 0;
-        data['MONTO_PAGADO'] = parseFloat(data['MONTO_PAGADO']) || 0;
-        
-        // ELIMINAR LA COLUMNA "SITUACION" ANTES DE ENVIAR (si no la necesitas en la hoja de cálculo)
-        delete data['SITUACION']; 
-
-        // --- AÑADIR EL CAMPO "ESTADO" ---
-        // Asumiendo que tienes un input con id="estado" y name="ESTADO" en tu HTML.
-        // Si el 'name' de tu input de estado es diferente, por favor ajusta 'ESTADO' aquí.
-        const estadoInput = document.getElementById('estado');
-        if (estadoInput) {
-            data['ESTADO'] = estadoInput.value;
-        }
-        // --- FIN AÑADIR CAMPO "ESTADO" ---
-
-        // Send data as JSON, which is easier to parse in Google Apps Script
-        fetch(appsScriptURL, { 
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json' 
-            },
-            body: JSON.stringify(data)
-        })
-        .then(response => response.text())
-        .then(result => {
-            if (result === 'Success') {
-                alert('¡Reserva enviada exitosamente!');
-                form.reset(); 
-                document.getElementById('paxFieldsContainer').innerHTML = ''; 
-                document.getElementById('idPreReserva').value = '0' + Math.floor(Math.random() * 100000).toString().padStart(5, '0');
-                document.getElementById('fechaHoy').value = today;
-                togglePaymentFields(); 
-            } else {
-                alert('Hubo un error al enviar el formulario: ' + result);
-            }
-        })
-        .catch(error => {
-            console.error('Error en la solicitud fetch:', error);
-            alert('Hubo un error: ' + error);
-        });
+    })
+    .catch(error => {
+        console.error('Error en la solicitud fetch:', error);
+        alert('Hubo un error de conexión: ' + error.message); // <--- Mensaje de error de red
     });
+});
+
+
 
     // Clear form functionality
     document.getElementById('clearForm').addEventListener('click', function() {
