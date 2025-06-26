@@ -1,13 +1,15 @@
 document.addEventListener('DOMContentLoaded', function() {
     // ESTA ES LA URL DE TU GOOGLE APPS SCRIPT
-    // ¡REEMPLAZA "TU_URL_DE_APPS_SCRIPT_AQUI" CON LA URL REAL DE TU DEPLOYMENT!
-   const appsScriptURL = "https://script.google.com/macros/s/AKfycbzrCzIoSm5-7HTQ0XlAlbH6jLr21S4NVPuPkePO0J_HQ2B-cD2kkuh4TCgFE15-MSlr/exec";
+    // ¡REEMPLAZA "TU_URL_DE_APPS_SCRIPT_AQUI" CON LA URL REAL DE TU DEPLOYMENT PARA LAS PRE-RESERVAS!
+    const appsScriptURL = "https://script.google.com/macros/s/AKfycbzrCzIoSm5-7HTQ0XlAlbH6jLr21S4NVPuPkePO0J_HQ2B-cD2kkuh4TCgFE15-MSlr/exec";
 
     // Set today's date
     const today = new Date().toISOString().slice(0, 10);
     document.getElementById('fechaHoy').value = today;
 
-    // Generate initial reservation ID
+    // Generate initial reservation ID (consider moving this to Apps Script for uniqueness)
+    // For client-side, this generates a random ID. If you need it to be unique across all submissions,
+    // it's better to get it from the server side (Apps Script).
     document.getElementById('idPreReserva').value = '0' + Math.floor(Math.random() * 100000).toString().padStart(5, '0');
 
     // Populate Vendedor dropdown
@@ -108,7 +110,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             <div class="input-group-prepend">
                                 <span class="input-group-text">$</span>
                             </div>
-                            <input type="number" class="form-control monto-alquiler-pax" id="montoAlquilerPax${i}" name="MONTO_ALQUILER_PAX${i}" step="0.01">
+                            <input type="number" class="form-control monto-alquiler-pax" id="montoAlquilerPax${i}" name="MONTO_ALQUILER_PAX${i}" step="0.01" value="0">
                         </div>
                     </div>
                 </div>
@@ -118,7 +120,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         <div class="input-group-prepend">
                             <span class="input-group-text">$</span>
                         </div>
-                        <input type="number" class="form-control monto-clase-pax" id="montoClasePax${i}" name="MONTO_CLASE_PAX${i}" step="0.01">
+                        <input type="number" class="form-control monto-clase-pax" id="montoClasePax${i}" name="MONTO_CLASE_PAX${i}" step="0.01" value="0">
                     </div>
                 </div>
             `;
@@ -132,15 +134,23 @@ document.addEventListener('DOMContentLoaded', function() {
         calculateTotalClasesFromPax();
     });
 
+    // Inicializa los campos de pasajero al cargar la página para 1 pasajero
+    document.getElementById('cantidadPasajeros').dispatchEvent(new Event('input'));
+
+
     // --- Nuevas funciones para sumar montos de pasajeros ---
     function addPaxAmountListeners() {
         const montoAlquilerPaxInputs = document.querySelectorAll('.monto-alquiler-pax');
         montoAlquilerPaxInputs.forEach(input => {
+            // Eliminar listeners previos para evitar duplicados al regenerar
+            input.removeEventListener('input', calculateTotalAlquilerFromPax);
             input.addEventListener('input', calculateTotalAlquilerFromPax);
         });
 
         const montoClasePaxInputs = document.querySelectorAll('.monto-clase-pax');
         montoClasePaxInputs.forEach(input => {
+            // Eliminar listeners previos para evitar duplicados al regenerar
+            input.removeEventListener('input', calculateTotalClasesFromPax);
             input.addEventListener('input', calculateTotalClasesFromPax);
         });
     }
@@ -176,8 +186,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
         let total = montoAlquiler + montoClases - descuento;
         montoTotalFinalInput.value = total.toFixed(2); // Formatear a 2 decimales
-        
-        calculateRestaPagar(); 
+
+        calculateRestaPagar();
     }
 
     // Escuchar cambios en los campos relevantes para actualizar Monto Total Final
@@ -188,34 +198,39 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
     // --- Lógica de manejo de campos de pago (SI_PAGO_TOTAL, TIPO_DE_PAGO, MONTO_PAGADO) ---
+    // Asegurarse de que esta función se llame cuando cambia 'siPagoTotal'
+    document.getElementById('siPagoTotal').addEventListener('change', togglePaymentFields);
+
     window.togglePaymentFields = function() {
         const siPagoTotal = document.getElementById('siPagoTotal').value;
         const metodoPagoGroup = document.getElementById('metodoPagoGroup');
         const pagoParcialGroup = document.getElementById('pagoParcialGroup');
         const restaPagarGroup = document.getElementById('restaPagarGroup');
         const montoTotalFinal = parseFloat(document.getElementById('montoTotalFinal').value) || 0;
-        const pagoParcialInput = document.getElementById('pagoParcial');
+        const pagoParcialInput = document.getElementById('pagoParcial'); // Esto debería ser 'montoPagado' en el HTML si 'pagoParcial' es el monto real pagado
         const restaPagarInput = document.getElementById('restaPagar');
         const tipoDePagoSelect = document.getElementById('tipoDePago');
-        const montoPagadoInput = document.getElementById('montoPagado');
+        const montoPagadoInput = document.getElementById('montoPagado'); // Este es el campo que usas para enviar a la hoja
 
         if (siPagoTotal === 'SI') {
             metodoPagoGroup.style.display = 'block';
-            pagoParcialGroup.style.display = 'none';
-            restaPagarGroup.style.display = 'none';
-            pagoParcialInput.value = montoTotalFinal.toFixed(2); 
-            restaPagarInput.value = 0; 
-            tipoDePagoSelect.value = 'TOTAL'; 
-            montoPagadoInput.value = montoTotalFinal.toFixed(2); 
+            pagoParcialGroup.style.display = 'none'; // Oculta el campo de "Pago Parcial"
+            restaPagarGroup.style.display = 'none'; // Oculta el campo de "Resta a Pagar"
+            
+            pagoParcialInput.value = montoTotalFinal.toFixed(2); // Ajusta este valor si 'pagoParcialInput' es realmente 'montoPagado'
+            restaPagarInput.value = (0).toFixed(2); // Resta a pagar es 0
+            tipoDePagoSelect.value = 'TOTAL';
+            montoPagadoInput.value = montoTotalFinal.toFixed(2); // MONTO_PAGADO es el total
         } else if (siPagoTotal === 'NO') {
             metodoPagoGroup.style.display = 'block';
             pagoParcialGroup.style.display = 'block';
             restaPagarGroup.style.display = 'block';
-            pagoParcialInput.value = ''; 
-            restaPagarInput.value = ''; 
-            tipoDePagoSelect.value = 'PARCIAL'; 
-            montoPagadoInput.value = ''; 
-        } else {
+            
+            pagoParcialInput.value = ''; // Limpiar el pago parcial si cambia a "No"
+            restaPagarInput.value = ''; // Limpiar resta
+            tipoDePagoSelect.value = 'PARCIAL';
+            montoPagadoInput.value = ''; // Limpiar monto pagado
+        } else { // Si se selecciona la opción vacía
             metodoPagoGroup.style.display = 'none';
             pagoParcialGroup.style.display = 'none';
             restaPagarGroup.style.display = 'none';
@@ -224,12 +239,12 @@ document.addEventListener('DOMContentLoaded', function() {
             tipoDePagoSelect.value = '';
             montoPagadoInput.value = '';
         }
-        calculateRestaPagar(); 
+        calculateRestaPagar(); // Recalcular después de cambiar la visibilidad
     };
 
     // Calculate 'Resta a Pagar' dynamically and update 'Monto Pagado' based on 'Tipo de Pago'
     document.getElementById('pagoParcial').addEventListener('input', calculateRestaPagar);
-    
+
     function calculateRestaPagar() {
         const montoTotalFinal = parseFloat(document.getElementById('montoTotalFinal').value) || 0;
         const pagoParcial = parseFloat(document.getElementById('pagoParcial').value) || 0;
@@ -240,121 +255,132 @@ document.addEventListener('DOMContentLoaded', function() {
         let restaPagar = montoTotalFinal - pagoParcial;
         restaPagarInput.value = restaPagar.toFixed(2);
 
+        // Actualiza el campo "Monto Pagado" que se envía a la hoja
         if (tipoDePagoSelect.value === 'PARCIAL') {
             montoPagadoInput.value = pagoParcial.toFixed(2);
-        } else if (tipoDePagoSelect.value === 'TOTAL') { 
+        } else if (tipoDePagoSelect.value === 'TOTAL') {
             montoPagadoInput.value = montoTotalFinal.toFixed(2);
         } else {
-            montoPagadoInput.value = ''; 
+            montoPagadoInput.value = '';
         }
     }
+    // Llama a togglePaymentFields al inicio para establecer el estado inicial
+    togglePaymentFields();
     // --- Fin de la lógica de manejo de campos de pago ---
 
 
-    // ... (resto del script.js)
+    // Handle form submission
+    document.getElementById('reservaForm').addEventListener('submit', function(event) {
+        event.preventDefault(); // Prevent default form submission
 
-// Handle form submission
-document.getElementById('reservaForm').addEventListener('submit', function(event) {
-    event.preventDefault(); // Prevent default form submission
+        const form = event.target;
+        const payload = {}; // Cambiamos 'data' a 'payload' para claridad
 
-    const form = event.target;
-    const payload = {}; // Cambiamos 'data' a 'payload' para claridad
-
-    // Collect main form fields based on their 'name' attribute
-    const formElements = form.elements;
-    for (let i = 0; i < formElements.length; i++) {
-        const element = formElements[i];
-        if (element.name && !['button', 'submit', 'reset'].includes(element.type)) {
-            payload[element.name] = element.value;
+        // Collect main form fields based on their 'name' attribute
+        const formElements = form.elements;
+        for (let i = 0; i < formElements.length; i++) {
+            const element = formElements[i];
+            if (element.name && !['button', 'submit', 'reset'].includes(element.type)) {
+                payload[element.name] = element.value;
+            }
         }
-    }
 
-    // Manually collect dynamic pax fields, ensuring correct naming for Sheets
-    const numPax = parseInt(document.getElementById('cantidadPasajeros').value) || 0;
-    for (let i = 1; i <= numPax; i++) {
-        payload[`TABLAS_PAX${i}`] = document.getElementById(`tablasPax${i}`).value;
-        payload[`BOTAS_PAX${i}`] = document.getElementById(`botasPax${i}`).value;
-        payload[`ROPA_PAX${i}`] = document.getElementById(`ropaPax${i}`).value;
-        payload[`CASCO_Y_ANTIPARRAS_PAX${i}`] = document.getElementById(`cascoAntiparrasPax${i}`).value;
-        payload[`CLASES_PAX${i}`] = document.getElementById(`clasesPax${i}`).value;
-        payload[`MONTO_ALQUILER_PAX${i}`] = parseFloat(document.getElementById(`montoAlquilerPax${i}`).value) || 0;
-        payload[`MONTO_CLASE_PAX${i}`] = parseFloat(document.getElementById(`montoClasePax${i}`).value) || 0;
-    }
-
-    // Fill in empty pax fields up to PAX15 to match Sheets columns
-    for (let i = numPax + 1; i <= 15; i++) {
-        payload[`TABLAS_PAX${i}`] = '';
-        payload[`BOTAS_PAX${i}`] = '';
-        payload[`ROPA_PAX${i}`] = '';
-        payload[`CASCO_Y_ANTIPARRAS_PAX${i}`] = '';
-        payload[`CLASES_PAX${i}`] = '';
-        payload[`MONTO_ALQUILER_PAX${i}`] = 0;
-        payload[`MONTO_CLASE_PAX${i}`] = 0;
-    }
-
-    // Ensure numeric values are sent as numbers, not strings
-    payload['DIAS'] = parseInt(payload['DIAS']) || 0;
-    payload['CANTIDAD_PASAJEROS'] = parseInt(payload['CANTIDAD_PASAJEROS']) || 0;
-    payload['MONTO_TOTAL_ALQUILER'] = parseFloat(payload['MONTO_TOTAL_ALQUILER']) || 0;
-    payload['MONTO_TOTAL_CLASES'] = parseFloat(payload['MONTO_TOTAL_CLASES']) || 0;
-    payload['DESCUENTO'] = parseFloat(payload['DESCUENTO']) || 0;
-    payload['MONTO_TOTAL_FINAL'] = parseFloat(payload['MONTO_TOTAL_FINAL']) || 0;
-    payload['PAGO_PARCIAL'] = parseFloat(payload['PAGO_PARCIAL']) || 0;
-    payload['RESTA_PAGAR'] = parseFloat(payload['RESTA_PAGAR']) || 0;
-    payload['MONTO_PAGADO'] = parseFloat(payload['MONTO_PAGADO']) || 0;
-
-    // ELIMINAR LA COLUMNA "SITUACION" ANTES DE ENVIAR (se manejará en el backend)
-    delete payload['SITUACION']; 
-
-    // AÑADIR EL CAMPO "ESTADO" (si existe en tu HTML)
-    const estadoInput = document.getElementById('estado');
-    if (estadoInput) {
-        payload['ESTADO'] = estadoInput.value;
-    }
-
-    // --- PREPARAR EL OBJETO DATA PARA EL NUEVO doPost ---
-    const dataToSend = {
-        action: 'addPreReserva', // <--- Especificamos la acción
-        payload: payload        // <--- El objeto con todos tus datos de formulario
-    };
-    // --- FIN PREPARACIÓN ---
-
-    // Send data as JSON, which is easier to parse in Google Apps Script
-    fetch(appsScriptURL, { 
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json' 
-        },
-        body: JSON.stringify(dataToSend) // <--- Enviamos el objeto dataToSend
-    })
-    .then(response => response.json()) // <--- Esperamos JSON de vuelta
-    .then(result => {
-        if (result.success) { // <--- Cambiamos la condición de éxito
-            alert('¡Reserva enviada exitosamente!');
-            form.reset(); 
-            document.getElementById('paxFieldsContainer').innerHTML = ''; 
-            // Si el ID se genera en el backend, no lo generamos aquí
-            // document.getElementById('idPreReserva').value = '0' + Math.floor(Math.random() * 100000).toString().padStart(5, '0');
-            document.getElementById('fechaHoy').value = today;
-            togglePaymentFields(); 
-        } else {
-            alert('Hubo un error al enviar el formulario: ' + result.message); // <--- Mensaje de error del backend
+        // Manually collect dynamic pax fields, ensuring correct naming for Sheets
+        const numPax = parseInt(document.getElementById('cantidadPasajeros').value) || 0;
+        for (let i = 1; i <= numPax; i++) {
+            payload[`TABLAS_PAX${i}`] = document.getElementById(`tablasPax${i}`).value;
+            payload[`BOTAS_PAX${i}`] = document.getElementById(`botasPax${i}`).value;
+            payload[`ROPA_PAX${i}`] = document.getElementById(`ropaPax${i}`).value;
+            payload[`CASCO_Y_ANTIPARRAS_PAX${i}`] = document.getElementById(`cascoAntiparrasPax${i}`).value;
+            payload[`CLASES_PAX${i}`] = document.getElementById(`clasesPax${i}`).value;
+            payload[`MONTO_ALQUILER_PAX${i}`] = parseFloat(document.getElementById(`montoAlquilerPax${i}`).value) || 0;
+            payload[`MONTO_CLASE_PAX${i}`] = parseFloat(document.getElementById(`montoClasePax${i}`).value) || 0;
         }
-    })
-    .catch(error => {
-        console.error('Error en la solicitud fetch:', error);
-        alert('Hubo un error de conexión: ' + error.message); // <--- Mensaje de error de red
+
+        // Fill in empty pax fields up to PAX15 to match Sheets columns (important for consistent structure)
+        for (let i = numPax + 1; i <= 15; i++) {
+            payload[`TABLAS_PAX${i}`] = '';
+            payload[`BOTAS_PAX${i}`] = '';
+            payload[`ROPA_PAX${i}`] = '';
+            payload[`CASCO_Y_ANTIPARRAS_PAX${i}`] = '';
+            payload[`CLASES_PAX${i}`] = '';
+            payload[`MONTO_ALQUILER_PAX${i}`] = 0;
+            payload[`MONTO_CLASE_PAX${i}`] = 0;
+        }
+
+        // Ensure numeric values are sent as numbers, not strings
+        payload['DIAS'] = parseInt(payload['DIAS']) || 0;
+        payload['CANTIDAD_PASAJEROS'] = parseInt(payload['CANTIDAD_PASAJEROS']) || 0;
+        payload['MONTO_TOTAL_ALQUILER'] = parseFloat(payload['MONTO_TOTAL_ALQUILER']) || 0;
+        payload['MONTO_TOTAL_CLASES'] = parseFloat(payload['MONTO_TOTAL_CLASES']) || 0;
+        payload['DESCUENTO'] = parseFloat(payload['DESCUENTO']) || 0;
+        payload['MONTO_TOTAL_FINAL'] = parseFloat(payload['MONTO_TOTAL_FINAL']) || 0;
+        
+        // Revisa los nombres de estos campos en tu HTML y en la hoja
+        // Si 'pagoParcial' en HTML se refiere a 'MONTO_PAGADO' en la hoja, entonces el nombre es confuso.
+        // Asumiendo que 'MONTO_PAGADO' es el que realmente quieres enviar a la hoja.
+        payload['PAGO_PARCIAL'] = parseFloat(payload['PAGO_PARCIAL']) || 0; // Este campo no se usa si envías MONTO_PAGADO
+        payload['RESTA_PAGAR'] = parseFloat(payload['RESTA_PAGAR']) || 0;
+        payload['MONTO_PAGADO'] = parseFloat(payload['MONTO_PAGADO']) || 0; // Este es el campo clave para el monto pagado
+
+        // ELIMINAR LA COLUMNA "SITUACION" ANTES DE ENVIAR (se manejará en el backend)
+        delete payload['SITUACION']; 
+
+        // AÑADIR EL CAMPO "ESTADO" (si existe en tu HTML, si no lo manejas en Apps Script)
+        // Por lo general, 'ESTADO' como "Cobrado" o "No Cobrado" se deduce de 'MONTO_PAGADO' en Apps Script.
+        // Si tienes un input oculto llamado 'estado', su valor se recolectaría automáticamente.
+        // Si no, no es necesario añadirlo aquí a menos que tengas un campo específico para ello.
+        // const estadoInput = document.getElementById('estado');
+        // if (estadoInput) {
+        //     payload['ESTADO'] = estadoInput.value;
+        // }
+        // Si 'ESTADO' se refiere a si está "Cobrado" o "No Cobrado", lo calculas en Apps Script.
+        // Si es otro tipo de estado (e.g., "Confirmada", "Pendiente"), asegúrate de que el campo exista en tu HTML.
+
+
+        // --- PREPARAR EL OBJETO DATA PARA EL NUEVO doPost ---
+        const dataToSend = {
+            action: 'addPreReserva', // <--- Especificamos la acción
+            payload: payload         // <--- El objeto con todos tus datos de formulario
+        };
+        // --- FIN PREPARACIÓN ---
+
+        // Send data as JSON, but with 'text/plain' Content-Type to avoid preflight
+        fetch(appsScriptURL, { 
+            method: 'POST',
+            headers: {
+                'Content-Type': 'text/plain;charset=utf-8' // <--- CAMBIO CRUCIAL AQUÍ
+            },
+            body: JSON.stringify(dataToSend) // <--- Enviamos el objeto dataToSend
+        })
+        .then(response => response.json()) // <--- Esperamos JSON de vuelta
+        .then(result => {
+            if (result.success) { // <--- Cambiamos la condición de éxito
+                alert('¡Reserva enviada exitosamente! ID: ' + result.id); // Mostrar el ID devuelto por Apps Script
+                form.reset(); 
+                document.getElementById('paxFieldsContainer').innerHTML = ''; 
+                document.getElementById('idPreReserva').value = '0' + Math.floor(Math.random() * 100000).toString().padStart(5, '0'); // Regenerar un nuevo ID de pre-reserva para el siguiente
+                document.getElementById('fechaHoy').value = today;
+                document.getElementById('cantidadPasajeros').dispatchEvent(new Event('input')); // Re-generar 1 pax
+                togglePaymentFields(); // Resetear campos de pago
+            } else {
+                alert('Hubo un error al enviar el formulario: ' + result.message); // <--- Mensaje de error del backend
+                console.error('Error del backend:', result.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error en la solicitud fetch (posiblemente CORS):', error);
+            alert('Hubo un error de conexión o de red. Por favor, intente de nuevo. Detalles: ' + error.message); // <--- Mensaje de error de red
+        });
     });
-});
-
-
 
     // Clear form functionality
     document.getElementById('clearForm').addEventListener('click', function() {
         document.getElementById('reservaForm').reset();
-        document.getElementById('paxFieldsContainer').innerHTML = '';
-        document.getElementById('idPreReserva').value = '0' + Math.floor(Math.random() * 100000).toString().padStart(5, '0');
+        document.getElementById('paxFieldsContainer').innerHTML = ''; // Limpiar campos de pasajeros
+        document.getElementById('idPreReserva').value = '0' + Math.floor(Math.random() * 100000).toString().padStart(5, '0'); // Nuevo ID
         document.getElementById('fechaHoy').value = today;
-        togglePaymentFields(); 
+        document.getElementById('cantidadPasajeros').dispatchEvent(new Event('input')); // Re-generar 1 pax
+        togglePaymentFields(); // Resetear campos de pago
     });
 });
