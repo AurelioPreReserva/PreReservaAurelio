@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', function() {
     // ESTA ES LA URL DE TU GOOGLE APPS SCRIPT
     // ¡REEMPLAZA "TU_URL_DE_APPS_SCRIPT_AQUI" CON LA URL REAL DE TU DEPLOYMENT!
-    const appsScriptURL = "https://script.google.com/macros/s/AKfycby175eIcbn5E0IfAbVIIDQKaHzX2-Vdh-vDqxjusyia0MYm5xI8EMkdzcos0zlxGOw/exec"; 
+    const appsScriptURL = "https://script.google.com/macros/library/d/1wZ7mZpFwFCJFUV4YAA5ddTqPl5HJ1Xox4kXB1iAJ9kNEjEFGXfTpUQgK/18"; 
 
     // Set today's date
     const today = new Date().toISOString().slice(0, 10);
