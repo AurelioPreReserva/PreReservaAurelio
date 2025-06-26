@@ -1,16 +1,12 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // ESTA ES LA URL DE TU GOOGLE APPS SCRIPT
-    // ¡REEMPLAZA "TU_URL_DE_APPS_SCRIPT_AQUI" CON LA URL REAL DE TU DEPLOYMENT!
     const appsScriptURL = "https://script.google.com/macros/s/AKfycbzrCzIoSm5-7HTQ0XlAlbH6jLr21S4NVPuPkePO0J_HQ2B-cD2kkuh4TCgFE15-MSlr/exec";
-
-    // Set today's date
     const today = new Date().toISOString().slice(0, 10);
     document.getElementById('fechaHoy').value = today;
-
-    // Generate initial reservation ID
     document.getElementById('idPreReserva').value = '0' + Math.floor(Math.random() * 100000).toString().padStart(5, '0');
 
-    // Populate Vendedor dropdown
+    // Referencia al spinner de carga
+    const loadingSpinner = document.getElementById('loadingSpinner'); //
+
     const vendedores = ['VAQUERO', 'TURBO', 'LUISA', 'DUDU', 'CHELO', 'LUCAS', 'FISU', 'NICO', 'NUESTRO', 'LUCHO'];
     const vendedorSelect = document.getElementById('vendedor');
     vendedores.forEach(vendedor => {
@@ -20,11 +16,10 @@ document.addEventListener('DOMContentLoaded', function() {
         vendedorSelect.appendChild(option);
     });
 
-    // Function to generate dynamic pax fields
     document.getElementById('cantidadPasajeros').addEventListener('input', function() {
         const numPax = parseInt(this.value) || 0;
         const paxFieldsContainer = document.getElementById('paxFieldsContainer');
-        paxFieldsContainer.innerHTML = ''; // Clear existing fields
+        paxFieldsContainer.innerHTML = '';
 
         for (let i = 1; i <= numPax; i++) {
             const paxGroup = document.createElement('div');
@@ -68,15 +63,16 @@ document.addEventListener('DOMContentLoaded', function() {
                             <option value="CAMPERA">CAMPERA</option>
                             <option value="PANTALON">PANTALON</option>
                             <option value="GUANTES">GUANTES</option>
-                            <option value="PRE-SKI">PRE - SKI</option>
-                            <option value="PANT-GUAN">PANT - GUAN</option>
-                            <option value="PANT-GUAN-PRESKI">PANT - GUAN - PRE SKI</option>
-                            <option value="PANT-PRESKI">PANT - PRE SKI</option>
-                            <option value="CAMP-GUANTES">CAMP - GUANTES</option>
-                            <option value="CAMP-GUANTES-PRESKI">CAMP - GUANTES - PRE SKI</option>
-                            <option value="CAMP-PRESKI">CAMP - PRE SKI</option>
-                            <option value="CAMP-GUANT-PANT">CAMP-GUANTE-PANTALON</option>
-                            <option value="PANT-CAMP">PANT - CAMP</option>
+                            <option value="PRE-SKI">PRE-SKI</option>
+                            <option value="PANT-GUAN">PANT-GUAN</option>
+                            <option value="PANT-GUAN-PRESKI">PANT-GUAN-PRESKI</option>
+                            <option value="PANT-PRESKI">PANT-PRESKI</option>
+                            <option value="CAMP-GUANTES">CAMP-GUANTES</option>
+                            <option value="CAMP-GUANTES-PRESKI">CAMP-GUANTES-PRESKI</option>
+                            <option value="CAMP-PRESKI">CAMP-PRESKI</option>
+                            <option value="PANT-CAMP">PANT-CAMP</option>
+                            <option value="CAMP-GUANT-PANT">CAMP-GUANT-PANT</option>
+                           
                         </select>
                     </div>
                     <div class="form-group col-md-6">
@@ -127,25 +123,20 @@ document.addEventListener('DOMContentLoaded', function() {
             paxFieldsContainer.appendChild(paxGroup);
         }
 
-        // Después de generar los campos, adjuntar los listeners
         addPaxAmountListeners();
-        // Recalcular los totales después de (re)generar los campos de pax
         calculateTotalAlquilerFromPax();
         calculateTotalClasesFromPax();
     });
 
-    // --- Nuevas funciones para sumar montos de pasajeros ---
     function addPaxAmountListeners() {
         const montoAlquilerPaxInputs = document.querySelectorAll('.monto-alquiler-pax');
         montoAlquilerPaxInputs.forEach(input => {
-            // Se debe remover el listener anterior antes de añadir uno nuevo
             input.removeEventListener('input', calculateTotalAlquilerFromPax);
             input.addEventListener('input', calculateTotalAlquilerFromPax);
         });
 
         const montoClasePaxInputs = document.querySelectorAll('.monto-clase-pax');
         montoClasePaxInputs.forEach(input => {
-            // Se debe remover el listener anterior antes de añadir uno nuevo
             input.removeEventListener('input', calculateTotalClasesFromPax);
             input.addEventListener('input', calculateTotalClasesFromPax);
         });
@@ -158,7 +149,7 @@ document.addEventListener('DOMContentLoaded', function() {
             totalAlquiler += parseFloat(input.value) || 0;
         });
         document.getElementById('montoTotalAlquiler').value = totalAlquiler.toFixed(2);
-        calculateMontoTotalFinal(); // Recalcular el monto final cuando cambia el total de alquiler
+        calculateMontoTotalFinal();
     }
 
     function calculateTotalClasesFromPax() {
@@ -168,12 +159,9 @@ document.addEventListener('DOMContentLoaded', function() {
             totalClases += parseFloat(input.value) || 0;
         });
         document.getElementById('montoTotalClases').value = totalClases.toFixed(2);
-        calculateMontoTotalFinal(); // Recalcular el monto final cuando cambia el total de clases
+        calculateMontoTotalFinal();
     }
-    // --- Fin de nuevas funciones ---
 
-
-    // --- Lógica de cálculo automático de Monto Total Final ---
     function calculateMontoTotalFinal() {
         const montoAlquiler = parseFloat(document.getElementById('montoTotalAlquiler').value) || 0;
         const montoClases = parseFloat(document.getElementById('montoTotalClases').value) || 0;
@@ -181,19 +169,15 @@ document.addEventListener('DOMContentLoaded', function() {
         const montoTotalFinalInput = document.getElementById('montoTotalFinal');
 
         let total = montoAlquiler + montoClases - descuento;
-        montoTotalFinalInput.value = total.toFixed(2); // Formatear a 2 decimales
+        montoTotalFinalInput.value = total.toFixed(2);
 
         calculateRestaPagar();
     }
 
-    // Escuchar cambios en los campos relevantes para actualizar Monto Total Final
     document.getElementById('montoTotalAlquiler').addEventListener('input', calculateMontoTotalFinal);
     document.getElementById('montoTotalClases').addEventListener('input', calculateMontoTotalFinal);
     document.getElementById('descuento').addEventListener('input', calculateMontoTotalFinal);
-    // --- Fin de la lógica de cálculo automático de Monto Total Final ---
 
-
-    // --- Lógica de manejo de campos de pago (SI_PAGO_TOTAL, TIPO_DE_PAGO, MONTO_PAGADO) ---
     window.togglePaymentFields = function() {
         const siPagoTotal = document.getElementById('siPagoTotal').value;
         const metodoPagoGroup = document.getElementById('metodoPagoGroup');
@@ -210,7 +194,7 @@ document.addEventListener('DOMContentLoaded', function() {
             pagoParcialGroup.style.display = 'none';
             restaPagarGroup.style.display = 'none';
             pagoParcialInput.value = montoTotalFinal.toFixed(2);
-            restaPagarInput.value = (0).toFixed(2); // Usar toFixed(2) para consistencia
+            restaPagarInput.value = (0).toFixed(2);
             tipoDePagoSelect.value = 'TOTAL';
             montoPagadoInput.value = montoTotalFinal.toFixed(2);
         } else if (siPagoTotal === 'NO') {
@@ -233,7 +217,6 @@ document.addEventListener('DOMContentLoaded', function() {
         calculateRestaPagar();
     };
 
-    // Calculate 'Resta a Pagar' dynamically and update 'Monto Pagado' based on 'Tipo de Pago'
     document.getElementById('pagoParcial').addEventListener('input', calculateRestaPagar);
 
     function calculateRestaPagar() {
@@ -254,25 +237,22 @@ document.addEventListener('DOMContentLoaded', function() {
             montoPagadoInput.value = '';
         }
     }
-    // --- Fin de la lógica de manejo de campos de pago ---
 
-    // Inicializar los campos de pago al cargar la página
     document.getElementById('siPagoTotal').addEventListener('change', window.togglePaymentFields);
-    document.getElementById('tipoDePago').addEventListener('change', calculateRestaPagar); // También ajustar Monto Pagado si cambia el tipo
+    document.getElementById('tipoDePago').addEventListener('change', calculateRestaPagar);
 
-    // Disparar la generación inicial de pasajeros y la inicialización de los campos de pago
     document.getElementById('cantidadPasajeros').dispatchEvent(new Event('input'));
     window.togglePaymentFields();
 
-
-    // Handle form submission
     document.getElementById('reservaForm').addEventListener('submit', function(event) {
-        event.preventDefault(); // Prevent default form submission
+        event.preventDefault();
+
+        // MOSTRAR SPINNER AL INICIO DEL ENVÍO
+        loadingSpinner.style.display = 'flex'; //
 
         const form = event.target;
-        const payload = {}; // Cambiamos 'data' a 'payload' para claridad
+        const payload = {};
 
-        // Collect main form fields based on their 'name' attribute
         const formElements = form.elements;
         for (let i = 0; i < formElements.length; i++) {
             const element = formElements[i];
@@ -281,7 +261,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
 
-        // Manually collect dynamic pax fields, ensuring correct naming for Sheets
         const numPax = parseInt(document.getElementById('cantidadPasajeros').value) || 0;
         for (let i = 1; i <= numPax; i++) {
             payload[`TABLAS_PAX${i}`] = document.getElementById(`tablasPax${i}`).value;
@@ -293,7 +272,6 @@ document.addEventListener('DOMContentLoaded', function() {
             payload[`MONTO_CLASE_PAX${i}`] = parseFloat(document.getElementById(`montoClasePax${i}`).value) || 0;
         }
 
-        // Fill in empty pax fields up to PAX15 to match Sheets columns
         for (let i = numPax + 1; i <= 15; i++) {
             payload[`TABLAS_PAX${i}`] = '';
             payload[`BOTAS_PAX${i}`] = '';
@@ -304,7 +282,6 @@ document.addEventListener('DOMContentLoaded', function() {
             payload[`MONTO_CLASE_PAX${i}`] = 0;
         }
 
-        // Ensure numeric values are sent as numbers, not strings
         payload['DIAS'] = parseInt(payload['DIAS']) || 0;
         payload['CANTIDAD_PASAJEROS'] = parseInt(payload['CANTIDAD_PASAJEROS']) || 0;
         payload['MONTO_TOTAL_ALQUILER'] = parseFloat(payload['MONTO_TOTAL_ALQUILER']) || 0;
@@ -315,74 +292,61 @@ document.addEventListener('DOMContentLoaded', function() {
         payload['RESTA_PAGAR'] = parseFloat(payload['RESTA_PAGAR']) || 0;
         payload['MONTO_PAGADO'] = parseFloat(payload['MONTO_PAGADO']) || 0;
 
-        // ELIMINAR LA COLUMNA "SITUACION" ANTES DE ENVIAR (se manejará en el backend)
         delete payload['SITUACION'];
 
-        // AÑADIR EL CAMPO "ESTADO" (si existe en tu HTML)
         const estadoInput = document.getElementById('estado');
         if (estadoInput) {
             payload['ESTADO'] = estadoInput.value;
         }
 
-        // --- PREPARAR EL OBJETO DATA PARA EL NUEVO doPost ---
-        // Aquí no necesitamos una 'action' anidada en el cuerpo del JSON,
-        // ya que la acción se puede inferir en el Apps Script si siempre es 'addPreReserva' para este formulario.
-        // O si tu Apps Script espera una acción explícita, la mantendremos, pero la enviaremos como parte del objeto principal.
-        // Para simplificar y maximizar compatibilidad con 'text/plain', enviamos el JSON puro de payload.
-        // El Apps Script lo recibirá como e.postData.contents y necesitará JSON.parse().
-        // Si tu Apps Script _necesita_ el "action: 'addPreReserva'", tendrás que reajustar Apps Script
-        // para buscarlo en el JSON parseado. Por ahora, asumimos que este formulario siempre "agrega".
-        const dataToSend = payload; // ¡ENVIAMOS EL PAYLOAD DIRECTAMENTE!
-        // --- FIN PREPARACIÓN ---
+        const dataToSend = payload;
 
-        // Send data as JSON, which is easier to parse in Google Apps Script
         fetch(appsScriptURL, {
             method: 'POST',
-            // *** CAMBIO CRÍTICO AQUÍ: USAR 'text/plain' PARA EVITAR CORS PREFLIGHTS ***
             headers: {
-                'Content-Type': 'text/plain;charset=utf-8' // Este Content-Type es más permisivo
+                'Content-Type': 'text/plain;charset=utf-8'
             },
-            body: JSON.stringify(dataToSend) // <--- Enviamos el objeto dataToSend como string JSON
+            body: JSON.stringify(dataToSend)
         })
         .then(response => {
-            // Verificar si la respuesta es OK antes de intentar parsear como JSON
             if (!response.ok) {
-                // Si la respuesta no es OK, lee el texto del error
                 return response.text().then(errorText => {
                     throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
                 });
             }
-            return response.json(); // Esperamos JSON de vuelta
+            return response.json();
         })
         .then(result => {
-            if (result.success) { // <--- Cambiamos la condición de éxito
+            if (result.success) {
                 alert('¡Reserva enviada exitosamente!');
                 form.reset();
                 document.getElementById('paxFieldsContainer').innerHTML = '';
                 document.getElementById('idPreReserva').value = '0' + Math.floor(Math.random() * 100000).toString().padStart(5, '0');
                 document.getElementById('fechaHoy').value = today;
-                document.getElementById('cantidadPasajeros').value = 1; // Asegurarse de resetear a 1 pasajero
-                document.getElementById('cantidadPasajeros').dispatchEvent(new Event('input')); // Disparar para regenerar
+                document.getElementById('cantidadPasajeros').value = 1;
+                document.getElementById('cantidadPasajeros').dispatchEvent(new Event('input'));
                 window.togglePaymentFields();
             } else {
-                alert('Hubo un error al enviar el formulario: ' + result.message); // <--- Mensaje de error del backend
+                alert('Hubo un error al enviar el formulario: ' + result.message);
             }
         })
         .catch(error => {
             console.error('Error en la solicitud fetch:', error);
-            alert('Hubo un error de conexión: ' + error.message); // <--- Mensaje de error de red
+            alert('Hubo un error de conexión: ' + error.message);
+        })
+        .finally(() => {
+            // OCULTAR SPINNER SIEMPRE AL FINALIZAR LA SOLICITUD (éxito o error)
+            loadingSpinner.style.display = 'none'; //
         });
     });
 
-
-    // Clear form functionality
     document.getElementById('clearForm').addEventListener('click', function() {
         document.getElementById('reservaForm').reset();
         document.getElementById('paxFieldsContainer').innerHTML = '';
         document.getElementById('idPreReserva').value = '0' + Math.floor(Math.random() * 100000).toString().padStart(5, '0');
         document.getElementById('fechaHoy').value = today;
-        document.getElementById('cantidadPasajeros').value = 1; // Asegurarse de resetear a 1 pasajero
-        document.getElementById('cantidadPasajeros').dispatchEvent(new Event('input')); // Disparar para regenerar
+        document.getElementById('cantidadPasajeros').value = 1;
+        document.getElementById('cantidadPasajeros').dispatchEvent(new Event('input'));
         window.togglePaymentFields();
     });
 });
