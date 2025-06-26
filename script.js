@@ -68,13 +68,15 @@ document.addEventListener('DOMContentLoaded', function() {
                             <option value="CAMPERA">CAMPERA</option>
                             <option value="PANTALON">PANTALON</option>
                             <option value="GUANTES">GUANTES</option>
-                            <option value="PRE - SKI">PRE - SKI</option>
-                            <option value="PANT - GUAN">PANT - GUAN</option>
-                            <option value="PANT - GUAN - PRE SKI">PANT - GUAN - PRE SKI</option>
-                            <option value="PANT - PRE SKI">PANT - PRE SKI</option>
-                            <option value="CAMP - GUANTES">CAMP - GUANTES</option>
-                            <option value="CAMP - GUANTES - PRE SKI">CAMP - GUANTES - PRE SKI</option>
-                            <option value="CAMP - PRE SKI">CAMP - PRE SKI</option>
+                            <option value="PRE-SKI">PRE - SKI</option>
+                            <option value="PANT-GUAN">PANT - GUAN</option>
+                            <option value="PANT-GUAN-PRESKI">PANT - GUAN - PRE SKI</option>
+                            <option value="PANT-PRESKI">PANT - PRE SKI</option>
+                            <option value="CAMP-GUANTES">CAMP - GUANTES</option>
+                            <option value="CAMP-GUANTES-PRESKI">CAMP - GUANTES - PRE SKI</option>
+                            <option value="CAMP-PRESKI">CAMP - PRE SKI</option>
+                            <option value="CAMP-GUANT-PANT">CAMP-GUANTE-PANTALON</option>
+                            <option value="PANT-CAMP">PANT - CAMP</option>
                         </select>
                     </div>
                     <div class="form-group col-md-6">
