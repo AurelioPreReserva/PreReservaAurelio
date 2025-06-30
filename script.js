@@ -1,14 +1,20 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // Es crucial que esta URL sea la de tu implementación de Web App (/exec)
-    const appsScriptURL = "https://script.google.com/macros/s/AKfycbzrCzIoSm5-7HTQ0XlAlbH6jLr21S4NVPuPkePO0J_HQ2B-cD2kkuh4TCgFE15-MSlr/exec";
-    const today = new Date().toISOString().slice(0, 10);
+    // ESTA ES LA URL DE TU GOOGLE APPS SCRIPT
+    // ¡REEMPLAZA "TU_URL_DE_APPS_SCRIPT_AQUI" CON LA URL REAL DE TU DEPLOYMENT!
+    const appsScriptURL = "https://script.google.com/macros/s/AKfycbxKPVfKa-FxdLhj-xaCHJEYdLj7QJbahtFOIusbrz88Gz8gZ9nNCKvdQfYqLWB3AjMx/exec";
 
-    // Inicialización de campos y valores
-    document.getElementById('fechaHoy').value = today;
-    document.getElementById('idPreReserva').value = '0' + Math.floor(Math.random() * 100000).toString().padStart(5, '0');
-
+    // Referencia al spinner de carga
     const loadingSpinner = document.getElementById('loadingSpinner');
 
+    // Set today's date
+    const today = new Date().toISOString().slice(0, 10);
+    document.getElementById('fechaHoy').value = today;
+
+    // Generación de ID de pre-reserva en el frontend.
+    // El ID se genera en el cliente al cargar la página y al limpiar el formulario.
+    document.getElementById('idPreReserva').value = '0' + Math.floor(Math.random() * 100000).toString().padStart(5, '0');
+
+    // Populate Vendedor dropdown
     const vendedores = ['VAQUERO', 'TURBO', 'LUISA', 'DUDU', 'CHELO', 'LUCAS', 'FISU', 'NICO', 'NUESTRO', 'LUCHO'];
     const vendedorSelect = document.getElementById('vendedor');
     vendedores.forEach(vendedor => {
@@ -18,10 +24,11 @@ document.addEventListener('DOMContentLoaded', function() {
         vendedorSelect.appendChild(option);
     });
 
+    // Function to generate dynamic pax fields
     document.getElementById('cantidadPasajeros').addEventListener('input', function() {
         const numPax = parseInt(this.value) || 0;
         const paxFieldsContainer = document.getElementById('paxFieldsContainer');
-        paxFieldsContainer.innerHTML = '';
+        paxFieldsContainer.innerHTML = ''; // Clear existing fields
 
         for (let i = 1; i <= numPax; i++) {
             const paxGroup = document.createElement('div');
@@ -65,15 +72,15 @@ document.addEventListener('DOMContentLoaded', function() {
                             <option value="CAMPERA">CAMPERA</option>
                             <option value="PANTALON">PANTALON</option>
                             <option value="GUANTES">GUANTES</option>
-                            <option value="PRE-SKI">PRE-SKI</option>
-                            <option value="PANT-GUAN">PANT-GUAN</option>
-                            <option value="PANT-GUAN-PRESKI">PANT-GUAN-PRESKI</option>
-                            <option value="PANT-PRESKI">PANT-PRESKI</option>
-                            <option value="CAMP-GUANTES">CAMP-GUANTES</option>
-                            <option value="CAMP-GUANTES-PRESKI">CAMP-GUANTES-PRESKI</option>
-                            <option value="CAMP-PRESKI">CAMP-PRESKI</option>
-                            <option value="PANT-CAMP">PANT-CAMP</option>
-                            <option value="CAMP-GUANT-PANT">CAMP-GUANT-PANT</option>
+                            <option value="PRE-SKI">PRE - SKI</option>
+                            <option value="PANT-GUAN">PANT - GUAN</option>
+                            <option value="PANT-GUAN-PRESKI">PANT - GUAN - PRE SKI</option>
+                            <option value="PANT-PRESKI">PANT - PRE SKI</option>
+                            <option value="CAMP-GUANTES">CAMP - GUANTES</option>
+                            <option value="CAMP-GUANTES-PRESKI">CAMP - GUANTES - PRE SKI</option>
+                            <option value="CAMP-PRESKI">CAMP - PRE SKI</option>
+                            <option value="CAMP-GUANT-PANT">CAMP-GUANTE-PANTALON</option>
+                            <option value="PANT-CAMP">PANT - CAMP</option>
                         </select>
                     </div>
                     <div class="form-group col-md-6">
@@ -96,7 +103,8 @@ document.addEventListener('DOMContentLoaded', function() {
                             <option value="">SELECCIONE</option>
                             <option value="SIN CLASE">SIN CLASE</option>
                             <option value="SKI GRUPAL">SKI GRUPAL</option>
-                            <option value="SNOW GRUPAL">SNOW GRUPAL</                            <option value="SKI PRIVADA">SKI PRIVADA</option>
+                            <option value="SNOW GRUPAL">SNOW GRUPAL</option>
+                            <option value="SKI PRIVADA">SKI PRIVADA</option>
                             <option value="SNOW PRIVADA">SNOW PRIVADA</option>
                         </select>
                     </div>
@@ -123,11 +131,14 @@ document.addEventListener('DOMContentLoaded', function() {
             paxFieldsContainer.appendChild(paxGroup);
         }
 
+        // Después de generar los campos, adjuntar los listeners
         addPaxAmountListeners();
+        // Recalcular los totales después de (re)generar los campos de pax
         calculateTotalAlquilerFromPax();
         calculateTotalClasesFromPax();
     });
 
+    // --- Nuevas funciones para sumar montos de pasajeros ---
     function addPaxAmountListeners() {
         const montoAlquilerPaxInputs = document.querySelectorAll('.monto-alquiler-pax');
         montoAlquilerPaxInputs.forEach(input => {
@@ -149,7 +160,7 @@ document.addEventListener('DOMContentLoaded', function() {
             totalAlquiler += parseFloat(input.value) || 0;
         });
         document.getElementById('montoTotalAlquiler').value = totalAlquiler.toFixed(2);
-        calculateMontoTotalFinal();
+        calculateMontoTotalFinal(); // Recalcular el monto final cuando cambia el total de alquiler
     }
 
     function calculateTotalClasesFromPax() {
@@ -159,9 +170,12 @@ document.addEventListener('DOMContentLoaded', function() {
             totalClases += parseFloat(input.value) || 0;
         });
         document.getElementById('montoTotalClases').value = totalClases.toFixed(2);
-        calculateMontoTotalFinal();
+        calculateMontoTotalFinal(); // Recalcular el monto final cuando cambia el total de clases
     }
+    // --- Fin de nuevas funciones ---
 
+
+    // --- Lógica de cálculo automático de Monto Total Final ---
     function calculateMontoTotalFinal() {
         const montoAlquiler = parseFloat(document.getElementById('montoTotalAlquiler').value) || 0;
         const montoClases = parseFloat(document.getElementById('montoTotalClases').value) || 0;
@@ -169,84 +183,224 @@ document.addEventListener('DOMContentLoaded', function() {
         const montoTotalFinalInput = document.getElementById('montoTotalFinal');
 
         let total = montoAlquiler + montoClases - descuento;
-        montoTotalFinalInput.value = total.toFixed(2);
+        montoTotalFinalInput.value = total.toFixed(2); // Formatear a 2 decimales
 
-        calculateRestaPagar();
+        calculatePaymentAmounts(); // Recalcular los montos de pago basados en el nuevo total final
     }
 
+    // Escuchar cambios en los campos relevantes para actualizar Monto Total Final
     document.getElementById('montoTotalAlquiler').addEventListener('input', calculateMontoTotalFinal);
     document.getElementById('montoTotalClases').addEventListener('input', calculateMontoTotalFinal);
     document.getElementById('descuento').addEventListener('input', calculateMontoTotalFinal);
+    // --- Fin de la lógica de cálculo automático de Monto Total Final ---
 
+
+    // --- Lógica de manejo de campos de pago (SI_PAGO_TOTAL, TIPO_DE_PAGO, MONTO_PAGADO) ---
     window.togglePaymentFields = function() {
         const siPagoTotal = document.getElementById('siPagoTotal').value;
         const metodoPagoGroup = document.getElementById('metodoPagoGroup');
         const pagoParcialGroup = document.getElementById('pagoParcialGroup');
         const restaPagarGroup = document.getElementById('restaPagarGroup');
-        const montoTotalFinal = parseFloat(document.getElementById('montoTotalFinal').value) || 0;
         const pagoParcialInput = document.getElementById('pagoParcial');
-        const restaPagarInput = document.getElementById('restaPagar');
         const tipoDePagoSelect = document.getElementById('tipoDePago');
-        const montoPagadoInput = document.getElementById('montoPagado');
 
         if (siPagoTotal === 'SI') {
             metodoPagoGroup.style.display = 'block';
             pagoParcialGroup.style.display = 'none';
             restaPagarGroup.style.display = 'none';
-            pagoParcialInput.value = montoTotalFinal.toFixed(2);
-            restaPagarInput.value = (0).toFixed(2);
+            pagoParcialInput.disabled = true; // Deshabilita el campo de pago parcial
             tipoDePagoSelect.value = 'TOTAL';
-            montoPagadoInput.value = montoTotalFinal.toFixed(2);
         } else if (siPagoTotal === 'NO') {
             metodoPagoGroup.style.display = 'block';
             pagoParcialGroup.style.display = 'block';
             restaPagarGroup.style.display = 'block';
-            pagoParcialInput.value = '';
-            restaPagarInput.value = '';
+            pagoParcialInput.disabled = false; // Habilita el campo de pago parcial
             tipoDePagoSelect.value = 'PARCIAL';
-            montoPagadoInput.value = '';
         } else {
             metodoPagoGroup.style.display = 'none';
             pagoParcialGroup.style.display = 'none';
             restaPagarGroup.style.display = 'none';
+            pagoParcialInput.disabled = true;
             pagoParcialInput.value = '';
-            restaPagarInput.value = '';
             tipoDePagoSelect.value = '';
-            montoPagadoInput.value = '';
         }
-        calculateRestaPagar();
+        calculatePaymentAmounts(); // Llama a la función principal de cálculo de pago
     };
 
-    document.getElementById('pagoParcial').addEventListener('input', calculateRestaPagar);
-
-    function calculateRestaPagar() {
+    function calculatePaymentAmounts() {
         const montoTotalFinal = parseFloat(document.getElementById('montoTotalFinal').value) || 0;
-        const pagoParcial = parseFloat(document.getElementById('pagoParcial').value) || 0;
+        const siPagoTotal = document.getElementById('siPagoTotal').value;
+        const pagoParcialInput = document.getElementById('pagoParcial');
         const restaPagarInput = document.getElementById('restaPagar');
-        const tipoDePagoSelect = document.getElementById('tipoDePago');
         const montoPagadoInput = document.getElementById('montoPagado');
+        const tipoDePagoSelect = document.getElementById('tipoDePago');
 
-        let restaPagar = montoTotalFinal - pagoParcial;
-        restaPagarInput.value = restaPagar.toFixed(2);
+        let montoPagado = 0;
+        let restaPagar = montoTotalFinal;
 
-        if (tipoDePagoSelect.value === 'PARCIAL') {
-            montoPagadoInput.value = pagoParcial.toFixed(2);
-        } else if (tipoDePagoSelect.value === 'TOTAL') {
-            montoPagadoInput.value = montoTotalFinal.toFixed(2);
+        if (siPagoTotal === 'SI') {
+            montoPagado = montoTotalFinal;
+            restaPagar = 0;
+            pagoParcialInput.value = montoTotalFinal.toFixed(2); // Asegura que el campo de pago parcial muestre el total
+            tipoDePagoSelect.value = 'TOTAL'; // Asegura que el select de tipo de pago sea TOTAL
+        } else if (siPagoTotal === 'NO') {
+            const pagoParcial = parseFloat(pagoParcialInput.value) || 0;
+            montoPagado = pagoParcial;
+            restaPagar = montoTotalFinal - pagoParcial;
+            tipoDePagoSelect.value = 'PARCIAL'; // Asegura que el select de tipo de pago sea PARCIAL
         } else {
-            montoPagadoInput.value = '';
+            montoPagado = 0;
+            restaPagar = montoTotalFinal;
+            pagoParcialInput.value = '';
+            tipoDePagoSelect.value = '';
         }
+
+        montoPagadoInput.value = montoPagado.toFixed(2);
+        restaPagarInput.value = restaPagar.toFixed(2);
     }
 
+    // Inicializar los campos de pago al cargar la página y escuchar cambios
     document.getElementById('siPagoTotal').addEventListener('change', window.togglePaymentFields);
-    document.getElementById('tipoDePago').addEventListener('change', calculateRestaPagar);
+    document.getElementById('pagoParcial').addEventListener('input', calculatePaymentAmounts);
+    // El tipoDePago no debería cambiar manualmente si se deriva de siPagoTotal, pero si lo permites:
+    // document.getElementById('tipoDePago').addEventListener('change', calculatePaymentAmounts);
 
-    // Disparar eventos iniciales para poblar campos y calcular totales
+    // Disparar la generación inicial de pasajeros y la inicialización de los campos de pago
     document.getElementById('cantidadPasajeros').dispatchEvent(new Event('input'));
     window.togglePaymentFields();
 
-    // Función para generar el HTML del ticket
-    function generateTicketHtml(data) {
+
+    // Handle form submission
+    document.getElementById('reservaForm').addEventListener('submit', function(event) {
+        event.preventDefault(); // Prevent default form submission
+
+        // MOSTRAR SPINNER AL INICIO DEL ENVÍO
+        loadingSpinner.style.display = 'flex';
+
+        const form = event.target;
+        const payload = {};
+
+        // Obtener la hora actual de carga
+        const now = new Date();
+        const horaCarga = now.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        payload['hora_de_carga'] = horaCarga; // Asigna al campo 'hora_de_carga'
+
+        // Obtener el valor del checkbox de flexibilidad
+        const flexibilidadCheckbox = document.getElementById('flexibilidadCheckbox');
+        payload['Flexibilidad'] = flexibilidadCheckbox.checked ? 'Si' : 'No'; // Asigna al campo 'Flexibilidad'
+
+        // Collect main form fields based on their 'name' attribute
+        const formElements = form.elements;
+        for (let i = 0; i < formElements.length; i++) {
+            const element = formElements[i];
+            if (element.name && !['button', 'submit', 'reset', 'FLEXIBILIDAD_CHECK'].includes(element.type)) { // Excluir el checkbox de flexibilidad
+                payload[element.name] = element.value;
+            }
+        }
+
+        // Manually collect dynamic pax fields, ensuring correct naming for Sheets
+        const numPax = parseInt(document.getElementById('cantidadPasajeros').value) || 0;
+        for (let i = 1; i <= numPax; i++) {
+            payload[`TABLAS_PAX${i}`] = document.getElementById(`tablasPax${i}`).value;
+            payload[`BOTAS_PAX${i}`] = document.getElementById(`botasPax${i}`).value;
+            payload[`ROPA_PAX${i}`] = document.getElementById(`ropaPax${i}`).value;
+            payload[`CASCO_Y_ANTIPARRAS_PAX${i}`] = document.getElementById(`cascoAntiparrasPax${i}`).value;
+            payload[`CLASES_PAX${i}`] = document.getElementById(`clasesPax${i}`).value;
+            payload[`MONTO_ALQUILER_PAX${i}`] = parseFloat(document.getElementById(`montoAlquilerPax${i}`).value) || 0;
+            payload[`MONTO_CLASE_PAX${i}`] = parseFloat(document.getElementById(`montoClasePax${i}`).value) || 0;
+        }
+
+        // Fill in empty pax fields up to PAX15 to match Sheets columns (if needed)
+        // This ensures consistent data structure for the backend if columns are fixed.
+        for (let i = numPax + 1; i <= 15; i++) {
+            payload[`TABLAS_PAX${i}`] = '';
+            payload[`BOTAS_PAX${i}`] = '';
+            payload[`ROPA_PAX${i}`] = '';
+            payload[`CASCO_Y_ANTIPARRAS_PAX${i}`] = '';
+            payload[`CLASES_PAX${i}`] = '';
+            payload[`MONTO_ALQUILER_PAX${i}`] = 0;
+            payload[`MONTO_CLASE_PAX${i}`] = 0;
+        }
+
+        // Ensure numeric values are sent as numbers, not strings
+        payload['DIAS'] = parseInt(payload['DIAS']) || 0;
+        payload['CANTIDAD_PASAJEROS'] = parseInt(payload['CANTIDAD_PASAJEROS']) || 0;
+        payload['MONTO_TOTAL_ALQUILER'] = parseFloat(payload['MONTO_TOTAL_ALQUILER']) || 0;
+        payload['MONTO_TOTAL_CLASES'] = parseFloat(payload['MONTO_TOTAL_CLASES']) || 0;
+        payload['DESCUENTO'] = parseFloat(payload['DESCUENTO']) || 0;
+        payload['MONTO_TOTAL_FINAL'] = parseFloat(payload['MONTO_TOTAL_FINAL']) || 0;
+        payload['PAGO_PARCIAL'] = parseFloat(payload['PAGO_PARCIAL']) || 0;
+        payload['RESTA_PAGAR'] = parseFloat(payload['RESTA_PAGAR']) || 0;
+        payload['MONTO_PAGADO'] = parseFloat(payload['MONTO_PAGADO']) || 0;
+
+        // ELIMINAR LA COLUMNA "SITUACION" ANTES DE ENVIAR (se manejará en el backend)
+        delete payload['SITUACION'];
+
+        // AÑADIR EL CAMPO "ESTADO" (si existe en tu HTML)
+        const estadoInput = document.getElementById('estado');
+        if (estadoInput) {
+            payload['ESTADO'] = estadoInput.value;
+        }
+
+        // Send data as JSON, using 'text/plain' to avoid CORS preflights
+        fetch(appsScriptURL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'text/plain;charset=utf-8'
+            },
+            body: JSON.stringify(payload) // Enviamos el objeto payload directamente
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.text().then(errorText => {
+                    throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+                });
+            }
+            return response.json(); // Esperamos JSON de vuelta
+        })
+        .then(result => {
+            if (result.success) {
+                // El ID de pre-reserva ya está en el payload que se envió (y se usó para el ticket)
+                // No es necesario actualizarlo desde el backend si se genera en el frontend.
+                // Si el backend devuelve el ID, se podría usar aquí si se desea una confirmación.
+                // document.getElementById('idPreReserva').value = result.data.ID_PRE_RESERVA; // Esta línea ya no es estrictamente necesaria si el ID se genera en el frontend
+
+                // Llamar a la función para generar el ticket imprimible
+                // Se usa el payload original enviado, que ya contiene el ID generado en el frontend
+                generatePrintableTicket(payload); 
+
+                // Limpiar formulario y reiniciar campos
+                form.reset();
+                document.getElementById('paxFieldsContainer').innerHTML = '';
+                document.getElementById('fechaHoy').value = today;
+                // Generar un nuevo ID para la próxima reserva
+                document.getElementById('idPreReserva').value = '0' + Math.floor(Math.random() * 100000).toString().padStart(5, '0'); 
+                document.getElementById('cantidadPasajeros').value = 1; // Resetear a 1 pasajero por defecto
+                document.getElementById('cantidadPasajeros').dispatchEvent(new Event('input')); // Disparar para regenerar campos
+                window.togglePaymentFields(); // Resetear campos de pago
+
+                // Opcional: Mostrar un mensaje de éxito más amigable en la UI
+                console.log('¡Reserva enviada exitosamente y ticket generado!');
+            } else {
+                alert('Hubo un error al enviar el formulario: ' + result.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error en la solicitud fetch:', error);
+            alert('Hubo un error de conexión: ' + error.message);
+        })
+        .finally(() => {
+            // OCULTAR SPINNER SIEMPRE AL FINALIZAR LA SOLICITUD (éxito o error)
+            loadingSpinner.style.display = 'none';
+        });
+    });
+
+
+    /**
+     * Genera el HTML del ticket para impresión en una nueva ventana.
+     * @param {Object} data - Los datos de la reserva para el ticket.
+     */
+    function generatePrintableTicket(data) {
         let paxDetailsHtml = '';
         const numPasajeros = parseInt(data.CANTIDAD_PASAJEROS || 0);
 
@@ -272,228 +426,133 @@ document.addEventListener('DOMContentLoaded', function() {
         const montoTotalClases = parseFloat(data.MONTO_TOTAL_CLASES) || 0;
         const descuento = parseFloat(data.DESCUENTO) || 0;
         const montoTotalFinal = parseFloat(data.MONTO_TOTAL_FINAL) || 0;
-        const montoPagado = parseFloat(data.MONTO_PAGADO) || 0;
+        const montoPagado = parseFloat(data.MONTO_PAGADO) || 0; 
         const restaPagar = parseFloat(data.RESTA_PAGAR) || 0;
 
-        return `
-            <div class="ticket" style="font-family: Arial, sans-serif; max-width: 400px; margin: 20px auto; padding: 20px; border: 1px solid #eee; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
-                <h2 style="text-align: center; color: #333;">DETALLE DE RESERVA</h2>
-                <div style="border-top: 1px dashed #ccc; margin: 10px 0;"></div>
-                <p style="display: flex; justify-content: space-between;"><span>N° Reserva:</span> <span>#${data.ID_PRE_RESERVA || '-'}</span></p>
-                <p style="display: flex; justify-content: space-between;"><span>Fecha:</span> <span>${data.FECHA || '-'}</span></p>
-                <p style="display: flex; justify-content: space-between;"><span>Días Alquiler:</span> <span>${data.DIAS || '-'}</span></p>
-                <p style="display: flex; justify-content: space-between;"><span>Cant. Pasajeros:</span> <span>${data.CANTIDAD_PASAJEROS || '-'}</span></p>
-                <p style="display: flex; justify-content: space-between;"><span>Cliente:</span> <span>${data.NOMBRE_COMPLETO || '-'}</span></p>
-                <p style="display: flex; justify-content: space-between;"><span>Contacto:</span> <span>${data.TEL_MAIL || '-'}</span></p>
-                <p style="display: flex; justify-content: space-between;"><span>Vendedor:</span> <span>${data.VENDEDOR || '-'}</span></p>
-                <p style="display: flex; justify-content: space-between;"><span>Estado de Pago:</span> <span>${data.ESTADO || '-'}</span></p>
-                <div style="border-top: 1px dashed #ccc; margin: 10px 0;"></div>
+        // Formatear la fecha para el ticket si es necesario (ej. de YYYY-MM-DD a DD/MM/YYYY)
+        let formattedDate = data.FECHA || '-';
+        try {
+            const dateObj = new Date(data.FECHA + 'T00:00:00'); // Asegura la zona horaria para parsear
+            if (!isNaN(dateObj.getTime())) {
+                formattedDate = dateObj.toLocaleDateString('es-ES', { year: 'numeric', month: '2-digit', day: '2-digit' });
+            }
+        } catch (e) {
+            console.error("Error formateando la fecha para el ticket:", e);
+        }
+
+
+        const singleTicketContent = `
+            <div class="ticket">
+                <h2>DETALLE DE RESERVA</h2>
+                <div class="line"></div>
+                <p class="flex-row"><span>N° Reserva:</span> <span>#${data.ID_PRE_RESERVA || '-'}</span></p>
+                <p class="flex-row"><span>Fecha:</span> <span>${formattedDate}</span></p>
+                <p class="flex-row"><span>Días Alquiler:</span> <span>${data.DIAS || '-'}</span></p>
+                <p class="flex-row"><span>Cant. Pasajeros:</span> <span>${data.CANTIDAD_PASAJEROS || '-'}</span></p>
+                <p class="flex-row"><span>Cliente:</span> <span>${data.NOMBRE_COMPLETO || '-'}</span></p>
+                <p class="flex-row"><span>Contacto:</span> <span>${data.TEL_MAIL || '-'}</span></p>
+                <p class="flex-row"><span>Vendedor:</span> <span>${data.VENDEDOR || '-'}</span></p>
+                <p class="flex-row"><span>Estado de Pago (Pre-reserva):</span> <span>${data.ESTADO || '-'}</span></p>
+                <p class="flex-row"><span>Flexibilidad:</span> <span>${data.Flexibilidad || '-'}</span></p>
+                <p class="flex-row"><span>Hora de Carga:</span> <span>${data.hora_de_carga || '-'}</span></p>
+                <div class="line"></div>
                 <h3>Detalle por Pasajero:</h3>
                 ${paxDetailsHtml}
-                <div style="border-top: 1px dashed #ccc; margin: 10px 0;"></div>
-                <p style="display: flex; justify-content: space-between;"><span>Subtotal Alquiler:</span> <span>$${montoTotalAlquiler.toFixed(2)}</span></p>
-                <p style="display: flex; justify-content: space-between;"><span>Subtotal Clases:</span> <span>$${montoTotalClases.toFixed(2)}</span></p>
-                <p style="display: flex; justify-content: space-between;"><span>Descuento:</span> <span>$${descuento.toFixed(2)}</span></p>
-                <p style="display: flex; justify-content: space-between; font-weight: bold; font-size: 1.1em;"><span>MONTO TOTAL FINAL:</span> <span>$${montoTotalFinal.toFixed(2)}</span></p>
-                <p style="display: flex; justify-content: space-between;"><span>Método de Pago:</span> <span>${data.METODO_DE_PAGO || '-'}</span></p>
-                <p style="display: flex; justify-content: space-between;"><span>Tipo de Pago:</span> <span>${data.TIPO_DE_PAGO || '-'}</span></p>
-                <p style="display: flex; justify-content: space-between;"><span>Monto Pagado:</span> <span>$${montoPagado.toFixed(2)}</span></p>
-                <p style="display: flex; justify-content: space-between;"><span>Resta Pagar:</span> <span>$${restaPagar.toFixed(2)}</span></p>
-                <div style="border-top: 1px dashed #ccc; margin: 10px 0;"></div>
+                <div class="line"></div>
+                <p class="flex-row"><span>Subtotal Alquiler:</span> <span>$${montoTotalAlquiler.toFixed(2)}</span></p>
+                <p class="flex-row"><span>Subtotal Clases:</span> <span>$${montoTotalClases.toFixed(2)}</span></p>
+                <p class="flex-row"><span>Descuento:</span> <span>$${descuento.toFixed(2)}</span></p>
+                <p class="flex-row total-line"><span>MONTO TOTAL FINAL:</span> <span>$${montoTotalFinal.toFixed(2)}</span></p>
+                <p class="flex-row"><span>Método de Pago:</span> <span>${data.METODO_DE_PAGO || '-'}</span></p>
+                <p class="flex-row"><span>Tipo de Pago:</span> <span>${data.TIPO_DE_PAGO || '-'}</span></p>
+                <p class="flex-row"><span>Monto Pagado:</span> <span>$${montoPagado.toFixed(2)}</span></p>
+                <p class="flex-row"><span>Resta Pagar:</span> <span>$${restaPagar.toFixed(2)}</span></p>
+                <div class="line"></div>
                 <p><strong>Observaciones:</strong> ${data.OBSERVACIONES || '-'}</p>
-                <div style="border-top: 1px dashed #ccc; margin: 10px 0;"></div>
-                <p style="text-align: center; font-style: italic;">¡Gracias por su reserva!</p>
+                <div class="line"></div>
+                <p style="text-align: center;">¡Gracias por su reserva!</p>
             </div>
         `;
+
+        const repeatedTicketContent = singleTicketContent.repeat(4); // Repite el ticket 4 veces
+
+        const ticketHtml = `
+            <!DOCTYPE html>
+            <html lang="es">
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Ticket de Reserva #${data.ID_PRE_RESERVA}</title>
+                <style>
+                    body {
+                        font-family: 'Courier New', Courier, monospace;
+                        margin: 20mm; 
+                        font-size: 10pt;
+                    }
+                    .ticket {
+                        width: 80mm; /* Ancho de ticket de impresora térmica */
+                        margin: 0 auto 15mm auto; /* Margen inferior para separar tickets */
+                        border: 1px dashed #ccc;
+                        padding: 10px;
+                        page-break-after: always; /* Para que cada ticket empiece en una nueva página al imprimir */
+                    }
+                    .ticket:last-child {
+                        page-break-after: auto; /* El último ticket no necesita salto de página */
+                    }
+                    h2, h3, h4 { text-align: center; margin-bottom: 5px; }
+                    p { margin: 2px 0; }
+                    .line { border-top: 1px dashed #ccc; margin: 10px 0; }
+                    .flex-row { display: flex; justify-content: space-between; }
+                    .total-line { font-weight: bold; }
+                    .pax-detail { border: 1px solid #eee; padding: 8px; margin-bottom: 10px; background-color: #f9f9f9; }
+                    .pax-detail h4 { text-align: left; margin-bottom: 5px; color: #333; }
+                    @media print {
+                        .no-print { display: none; }
+                        body { margin: 0; } 
+                        .ticket { border: none; padding: 0; width: auto; }
+                    }
+                </style>
+            </head>
+            <body>
+                ${repeatedTicketContent} 
+                <script>
+                    window.onload = () => {
+                        setTimeout(() => {
+                            window.print();
+                            // Opcional: Cierra la ventana después de imprimir o si el usuario cancela
+                            // window.close(); 
+                        }, 500); // Pequeño retraso para asegurar que el contenido se cargó
+                    };
+                </script>
+            </body>
+            </html>
+        `;
+
+        try {
+            const printWindow = window.open('', '_blank');
+            if (printWindow) {
+                printWindow.document.write(ticketHtml);
+                printWindow.document.close();
+            } else {
+                // Mejorar el mensaje de error para el usuario
+                alert('No se pudo abrir la ventana de impresión. Por favor, deshabilite los bloqueadores de pop-ups para este sitio.');
+                console.error('El navegador bloqueó la ventana de impresión o falló al abrirla.');
+            }
+        } catch (error) {
+            console.error('Error al generar el ticket de impresión:', error);
+            alert('Hubo un error al generar el ticket. Consulte la consola del navegador para más detalles.');
+        }
     }
 
-    document.getElementById('reservaForm').addEventListener('submit', function(event) {
-        event.preventDefault();
-
-        loadingSpinner.style.display = 'flex';
-
-        const form = event.target;
-        const payload = {};
-        const formData = new URLSearchParams(); // Usaremos URLSearchParams para enviar los datos
-
-        const formElements = form.elements;
-        for (let i = 0; i < formElements.length; i++) {
-            const element = formElements[i];
-            if (element.name && !['button', 'submit', 'reset'].includes(element.type)) {
-                payload[element.name] = element.value; // Guardamos en payload para generateTicketHtml
-                formData.append(element.name, element.value); // Agregamos a formData para el envío
-            }
-        }
-
-        const numPax = parseInt(document.getElementById('cantidadPasajeros').value) || 0;
-        for (let i = 1; i <= numPax; i++) {
-            payload[`TABLAS_PAX${i}`] = document.getElementById(`tablasPax${i}`).value;
-            payload[`BOTAS_PAX${i}`] = document.getElementById(`botasPax${i}`).value;
-            payload[`ROPA_PAX${i}`] = document.getElementById(`ropaPax${i}`).value;
-            payload[`CASCO_Y_ANTIPARRAS_PAX${i}`] = document.getElementById(`cascoAntiparrasPax${i}`).value;
-            payload[`CLASES_PAX${i}`] = document.getElementById(`clasesPax${i}`).value;
-            payload[`MONTO_ALQUILER_PAX${i}`] = parseFloat(document.getElementById(`montoAlquilerPax${i}`).value) || 0;
-            payload[`MONTO_CLASE_PAX${i}`] = parseFloat(document.getElementById(`montoClasePax${i}`).value) || 0;
-
-            // También agregamos a formData
-            formData.append(`TABLAS_PAX${i}`, payload[`TABLAS_PAX${i}`]);
-            formData.append(`BOTAS_PAX${i}`, payload[`BOTAS_PAX${i}`]);
-            formData.append(`ROPA_PAX${i}`, payload[`ROPA_PAX${i}`]);
-            formData.append(`CASCO_Y_ANTIPARRAS_PAX${i}`, payload[`CASCO_Y_ANTIPARRAS_PAX${i}`]);
-            formData.append(`CLASES_PAX${i}`, payload[`CLASES_PAX${i}`]);
-            formData.append(`MONTO_ALQUILER_PAX${i}`, payload[`MONTO_ALQUILER_PAX${i}`]);
-            formData.append(`MONTO_CLASE_PAX${i}`, payload[`MONTO_CLASE_PAX${i}`]);
-        }
-
-        // Limpia los campos de PAX adicionales que no se usen (hasta un máximo razonable, e.g., 15)
-        // Y los agrega a formData con valores vacíos/cero
-        for (let i = numPax + 1; i <= 15; i++) {
-            payload[`TABLAS_PAX${i}`] = '';
-            payload[`BOTAS_PAX${i}`] = '';
-            payload[`ROPA_PAX${i}`] = '';
-            payload[`CASCO_Y_ANTIPARRAS_PAX${i}`] = '';
-            payload[`CLASES_PAX${i}`] = '';
-            payload[`MONTO_ALQUILER_PAX${i}`] = 0;
-            payload[`MONTO_CLASE_PAX${i}`] = 0;
-
-            formData.append(`TABLAS_PAX${i}`, '');
-            formData.append(`BOTAS_PAX${i}`, '');
-            formData.append(`ROPA_PAX${i}`, '');
-            formData.append(`CASCO_Y_ANTIPARRAS_PAX${i}`, '');
-            formData.append(`CLASES_PAX${i}`, '');
-            formData.append(`MONTO_ALQUILER_PAX${i}`, 0);
-            formData.append(`MONTO_CLASE_PAX${i}`, 0);
-        }
-
-        // Asegurarse de que los valores numéricos sean tratados como números
-        // Y agregarlos a formData
-        payload['DIAS'] = parseInt(payload['DIAS']) || 0;
-        formData.set('DIAS', payload['DIAS']);
-        
-        payload['CANTIDAD_PASAJEROS'] = parseInt(payload['CANTIDAD_PASAJEROS']) || 0;
-        formData.set('CANTIDAD_PASAJEROS', payload['CANTIDAD_PASAJEROS']);
-        
-        payload['MONTO_TOTAL_ALQUILER'] = parseFloat(payload['MONTO_TOTAL_ALQUILER']) || 0;
-        formData.set('MONTO_TOTAL_ALQUILER', payload['MONTO_TOTAL_ALQUILER']);
-        
-        payload['MONTO_TOTAL_CLASES'] = parseFloat(payload['MONTO_TOTAL_CLASES']) || 0;
-        formData.set('MONTO_TOTAL_CLASES', payload['MONTO_TOTAL_CLASES']);
-        
-        payload['DESCUENTO'] = parseFloat(payload['DESCUENTO']) || 0;
-        formData.set('DESCUENTO', payload['DESCUENTO']);
-        
-        payload['MONTO_TOTAL_FINAL'] = parseFloat(payload['MONTO_TOTAL_FINAL']) || 0;
-        formData.set('MONTO_TOTAL_FINAL', payload['MONTO_TOTAL_FINAL']);
-        
-        payload['PAGO_PARCIAL'] = parseFloat(payload['PAGO_PARCIAL']) || 0;
-        formData.set('PAGO_PARCIAL', payload['PAGO_PARCIAL']);
-        
-        payload['RESTA_PAGAR'] = parseFloat(payload['RESTA_PAGAR']) || 0;
-        formData.set('RESTA_PAGAR', payload['RESTA_PAGAR']);
-        
-        payload['MONTO_PAGADO'] = parseFloat(payload['MONTO_PAGADO']) || 0;
-        formData.set('MONTO_PAGADO', payload['MONTO_PAGADO']);
-
-        const estadoInput = document.getElementById('estado');
-        if (estadoInput) {
-            payload['ESTADO'] = estadoInput.value;
-            formData.set('ESTADO', estadoInput.value);
-        }
-
-        // Agregamos la acción al formData
-        formData.append('action', 'addPreReserva');
-        // El ticketHtml se generará en el servidor, no es necesario enviarlo aquí para la primera llamada
-
-        // PRIMERA LLAMADA: Guardar la reserva
-        fetch(appsScriptURL, {
-            method: 'POST',
-            // NO se especifica Content-Type, fetch lo establecerá automáticamente como
-            // 'application/x-www-form-urlencoded' cuando se usa URLSearchParams
-            body: formData
-        })
-        .then(response => {
-            if (!response.ok) {
-                return response.text().then(errorText => {
-                    throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
-                });
-            }
-            return response.json();
-        })
-        .then(result => {
-            if (result.success) {
-                alert('¡Reserva enviada exitosamente!');
-                
-                // Restablecer el formulario
-                form.reset();
-                document.getElementById('paxFieldsContainer').innerHTML = '';
-                document.getElementById('idPreReserva').value = '0' + Math.floor(Math.random() * 100000).toString().padStart(5, '0');
-                document.getElementById('fechaHoy').value = today;
-                document.getElementById('cantidadPasajeros').value = 1;
-                document.getElementById('cantidadPasajeros').dispatchEvent(new Event('input'));
-                window.togglePaymentFields();
-
-                // SEGUNDA LLAMADA: Si la reserva fue exitosa, generar el PDF
-                // Ahora usamos el resultado de la primera llamada para obtener el ID de la reserva
-                // y el HTML generado por el servidor (si el servidor lo devuelve).
-                // Es más seguro que el servidor genere el HTML del ticket para el PDF.
-
-                // Si tu Apps Script *realmente* no devuelve el ticketHtml en el resultado
-                // entonces tendríamos que regenerarlo aquí con generateTicketHtml(payload)
-                // pero si el Apps Script lo devuelve, es mejor usarlo.
-                // Asumo que el Apps Script ahora devolverá ticketHtml y id en `result`.
-
-                if (result.ticketHtml && result.id) {
-                    const generatePdfData = {
-                        action: 'generatePdf',
-                        htmlContent: result.ticketHtml,
-                        idPreReserva: result.id
-                    };
-                    
-                    // Crear un formulario temporal para la solicitud POST que generará el PDF
-                    // Esto es necesario para que el navegador trate la respuesta como un archivo y la abra en una nueva pestaña.
-                    const tempForm = document.createElement('form');
-                    tempForm.action = appsScriptURL;
-                    tempForm.method = 'POST';
-                    tempForm.target = '_blank'; // Abrir en una nueva pestaña
-
-                    const input = document.createElement('input');
-                    input.type = 'hidden';
-                    // El nombre 'data' DEBE coincidir con cómo tu Apps Script lo lee en e.parameter.data
-                    // Importante: No uses encodeURIComponent si Apps Script espera el JSON tal cual en e.parameter.data.
-                    // Si e.parameter.data ya está parseando el JSON string, entonces no se necesita encodeURIComponent aquí.
-                    // Vamos a dejarlo sin encodeURIComponent por ahora para que coincida con e.parameter.data = JSON.parse(e.postData.contents) si ese fuera el caso.
-                    // Si el problema persiste, probar con encodeURIComponent.
-                    input.name = 'data';
-                    input.value = JSON.stringify(generatePdfData); // Enviamos el JSON como string en un campo 'data'
-                    
-                    tempForm.appendChild(input);
-                    document.body.appendChild(tempForm);
-                    tempForm.submit(); // Envía el formulario para abrir el PDF
-                    document.body.removeChild(tempForm); // Elimina el formulario temporal
-                } else {
-                    console.warn("No se pudo generar el PDF. El servidor no devolvió ticketHtml o id.");
-                }
-
-            } else {
-                alert('Hubo un error al enviar el formulario: ' + result.message);
-            }
-        })
-        .catch(error => {
-            console.error('Error en la solicitud fetch:', error);
-            alert('Hubo un error de conexión: ' + error.message);
-        })
-        .finally(() => {
-            loadingSpinner.style.display = 'none';
-        });
-    });
-
+    // Clear form functionality
     document.getElementById('clearForm').addEventListener('click', function() {
         document.getElementById('reservaForm').reset();
         document.getElementById('paxFieldsContainer').innerHTML = '';
-        document.getElementById('idPreReserva').value = '0' + Math.floor(Math.random() * 100000).toString().padStart(5, '0');
+        // Generar un nuevo ID al limpiar el formulario
+        document.getElementById('idPreReserva').value = '0' + Math.floor(Math.random() * 100000).toString().padStart(5, '0'); 
         document.getElementById('fechaHoy').value = today;
-        document.getElementById('cantidadPasajeros').value = 1;
-        document.getElementById('cantidadPasajeros').dispatchEvent(new Event('input'));
-        window.togglePaymentFields();
+        document.getElementById('cantidadPasajeros').value = 1; // Asegurarse de resetear a 1 pasajero
+        document.getElementById('cantidadPasajeros').dispatchEvent(new Event('input')); // Disparar para regenerar
+        window.togglePaymentFields(); // Resetear los campos de pago
     });
 });
