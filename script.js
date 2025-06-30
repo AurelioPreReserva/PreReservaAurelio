@@ -96,8 +96,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             <option value="">SELECCIONE</option>
                             <option value="SIN CLASE">SIN CLASE</option>
                             <option value="SKI GRUPAL">SKI GRUPAL</option>
-                            <option value="SNOW GRUPAL">SNOW GRUPAL</option>
-                            <option value="SKI PRIVADA">SKI PRIVADA</option>
+                            <option value="SNOW GRUPAL">SNOW GRUPAL</                            <option value="SKI PRIVADA">SKI PRIVADA</option>
                             <option value="SNOW PRIVADA">SNOW PRIVADA</option>
                         </select>
                     </div>
@@ -308,7 +307,6 @@ document.addEventListener('DOMContentLoaded', function() {
         `;
     }
 
-
     document.getElementById('reservaForm').addEventListener('submit', function(event) {
         event.preventDefault();
 
@@ -316,12 +314,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const form = event.target;
         const payload = {};
+        const formData = new URLSearchParams(); // Usaremos URLSearchParams para enviar los datos
 
         const formElements = form.elements;
         for (let i = 0; i < formElements.length; i++) {
             const element = formElements[i];
             if (element.name && !['button', 'submit', 'reset'].includes(element.type)) {
-                payload[element.name] = element.value;
+                payload[element.name] = element.value; // Guardamos en payload para generateTicketHtml
+                formData.append(element.name, element.value); // Agregamos a formData para el envío
             }
         }
 
@@ -334,9 +334,19 @@ document.addEventListener('DOMContentLoaded', function() {
             payload[`CLASES_PAX${i}`] = document.getElementById(`clasesPax${i}`).value;
             payload[`MONTO_ALQUILER_PAX${i}`] = parseFloat(document.getElementById(`montoAlquilerPax${i}`).value) || 0;
             payload[`MONTO_CLASE_PAX${i}`] = parseFloat(document.getElementById(`montoClasePax${i}`).value) || 0;
+
+            // También agregamos a formData
+            formData.append(`TABLAS_PAX${i}`, payload[`TABLAS_PAX${i}`]);
+            formData.append(`BOTAS_PAX${i}`, payload[`BOTAS_PAX${i}`]);
+            formData.append(`ROPA_PAX${i}`, payload[`ROPA_PAX${i}`]);
+            formData.append(`CASCO_Y_ANTIPARRAS_PAX${i}`, payload[`CASCO_Y_ANTIPARRAS_PAX${i}`]);
+            formData.append(`CLASES_PAX${i}`, payload[`CLASES_PAX${i}`]);
+            formData.append(`MONTO_ALQUILER_PAX${i}`, payload[`MONTO_ALQUILER_PAX${i}`]);
+            formData.append(`MONTO_CLASE_PAX${i}`, payload[`MONTO_CLASE_PAX${i}`]);
         }
 
         // Limpia los campos de PAX adicionales que no se usen (hasta un máximo razonable, e.g., 15)
+        // Y los agrega a formData con valores vacíos/cero
         for (let i = numPax + 1; i <= 15; i++) {
             payload[`TABLAS_PAX${i}`] = '';
             payload[`BOTAS_PAX${i}`] = '';
@@ -345,51 +355,66 @@ document.addEventListener('DOMContentLoaded', function() {
             payload[`CLASES_PAX${i}`] = '';
             payload[`MONTO_ALQUILER_PAX${i}`] = 0;
             payload[`MONTO_CLASE_PAX${i}`] = 0;
+
+            formData.append(`TABLAS_PAX${i}`, '');
+            formData.append(`BOTAS_PAX${i}`, '');
+            formData.append(`ROPA_PAX${i}`, '');
+            formData.append(`CASCO_Y_ANTIPARRAS_PAX${i}`, '');
+            formData.append(`CLASES_PAX${i}`, '');
+            formData.append(`MONTO_ALQUILER_PAX${i}`, 0);
+            formData.append(`MONTO_CLASE_PAX${i}`, 0);
         }
 
         // Asegurarse de que los valores numéricos sean tratados como números
+        // Y agregarlos a formData
         payload['DIAS'] = parseInt(payload['DIAS']) || 0;
+        formData.set('DIAS', payload['DIAS']);
+        
         payload['CANTIDAD_PASAJEROS'] = parseInt(payload['CANTIDAD_PASAJEROS']) || 0;
+        formData.set('CANTIDAD_PASAJEROS', payload['CANTIDAD_PASAJEROS']);
+        
         payload['MONTO_TOTAL_ALQUILER'] = parseFloat(payload['MONTO_TOTAL_ALQUILER']) || 0;
+        formData.set('MONTO_TOTAL_ALQUILER', payload['MONTO_TOTAL_ALQUILER']);
+        
         payload['MONTO_TOTAL_CLASES'] = parseFloat(payload['MONTO_TOTAL_CLASES']) || 0;
+        formData.set('MONTO_TOTAL_CLASES', payload['MONTO_TOTAL_CLASES']);
+        
         payload['DESCUENTO'] = parseFloat(payload['DESCUENTO']) || 0;
+        formData.set('DESCUENTO', payload['DESCUENTO']);
+        
         payload['MONTO_TOTAL_FINAL'] = parseFloat(payload['MONTO_TOTAL_FINAL']) || 0;
+        formData.set('MONTO_TOTAL_FINAL', payload['MONTO_TOTAL_FINAL']);
+        
         payload['PAGO_PARCIAL'] = parseFloat(payload['PAGO_PARCIAL']) || 0;
+        formData.set('PAGO_PARCIAL', payload['PAGO_PARCIAL']);
+        
         payload['RESTA_PAGAR'] = parseFloat(payload['RESTA_PAGAR']) || 0;
+        formData.set('RESTA_PAGAR', payload['RESTA_PAGAR']);
+        
         payload['MONTO_PAGADO'] = parseFloat(payload['MONTO_PAGADO']) || 0;
+        formData.set('MONTO_PAGADO', payload['MONTO_PAGADO']);
 
         const estadoInput = document.getElementById('estado');
         if (estadoInput) {
             payload['ESTADO'] = estadoInput.value;
+            formData.set('ESTADO', estadoInput.value);
         }
 
-        // Generar el HTML del ticket para enviarlo al backend
-        const ticketHtmlContent = generateTicketHtml(payload);
+        // Agregamos la acción al formData
+        formData.append('action', 'addPreReserva');
+        // El ticketHtml se generará en el servidor, no es necesario enviarlo aquí para la primera llamada
 
         // PRIMERA LLAMADA: Guardar la reserva
-        const saveReservationData = {
-            action: 'addPreReserva',
-            payload: payload,
-            ticketHtml: ticketHtmlContent // Pasamos el HTML para reusarlo
-        };
-
         fetch(appsScriptURL, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json' // CAMBIADO: Usar application/json
-            },
-            body: JSON.stringify(saveReservationData)
+            // NO se especifica Content-Type, fetch lo establecerá automáticamente como
+            // 'application/x-www-form-urlencoded' cuando se usa URLSearchParams
+            body: formData
         })
         .then(response => {
             if (!response.ok) {
                 return response.text().then(errorText => {
-                    // Intenta parsear el error como JSON si es posible
-                    try {
-                        const errorJson = JSON.parse(errorText);
-                        throw new Error(`HTTP error! status: ${response.status}, message: ${errorJson.message || errorText}`);
-                    } catch (e) {
-                        throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
-                    }
+                    throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
                 });
             }
             return response.json();
@@ -397,6 +422,7 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(result => {
             if (result.success) {
                 alert('¡Reserva enviada exitosamente!');
+                
                 // Restablecer el formulario
                 form.reset();
                 document.getElementById('paxFieldsContainer').innerHTML = '';
@@ -406,7 +432,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.getElementById('cantidadPasajeros').dispatchEvent(new Event('input'));
                 window.togglePaymentFields();
 
-                // SEGUNDA LLAMADA: Si la reserva fue exitosa y tenemos el HTML del ticket, solicitar el PDF
+                // SEGUNDA LLAMADA: Si la reserva fue exitosa, generar el PDF
+                // Ahora usamos el resultado de la primera llamada para obtener el ID de la reserva
+                // y el HTML generado por el servidor (si el servidor lo devuelve).
+                // Es más seguro que el servidor genere el HTML del ticket para el PDF.
+
+                // Si tu Apps Script *realmente* no devuelve el ticketHtml en el resultado
+                // entonces tendríamos que regenerarlo aquí con generateTicketHtml(payload)
+                // pero si el Apps Script lo devuelve, es mejor usarlo.
+                // Asumo que el Apps Script ahora devolverá ticketHtml y id en `result`.
+
                 if (result.ticketHtml && result.id) {
                     const generatePdfData = {
                         action: 'generatePdf',
@@ -424,14 +459,21 @@ document.addEventListener('DOMContentLoaded', function() {
                     const input = document.createElement('input');
                     input.type = 'hidden';
                     // El nombre 'data' DEBE coincidir con cómo tu Apps Script lo lee en e.parameter.data
+                    // Importante: No uses encodeURIComponent si Apps Script espera el JSON tal cual en e.parameter.data.
+                    // Si e.parameter.data ya está parseando el JSON string, entonces no se necesita encodeURIComponent aquí.
+                    // Vamos a dejarlo sin encodeURIComponent por ahora para que coincida con e.parameter.data = JSON.parse(e.postData.contents) si ese fuera el caso.
+                    // Si el problema persiste, probar con encodeURIComponent.
                     input.name = 'data';
-                    input.value = encodeURIComponent(JSON.stringify(generatePdfData)); // Codificar la URL para asegurar que el JSON no se corrompa
+                    input.value = JSON.stringify(generatePdfData); // Enviamos el JSON como string en un campo 'data'
                     
                     tempForm.appendChild(input);
                     document.body.appendChild(tempForm);
                     tempForm.submit(); // Envía el formulario para abrir el PDF
                     document.body.removeChild(tempForm); // Elimina el formulario temporal
+                } else {
+                    console.warn("No se pudo generar el PDF. El servidor no devolvió ticketHtml o id.");
                 }
+
             } else {
                 alert('Hubo un error al enviar el formulario: ' + result.message);
             }
