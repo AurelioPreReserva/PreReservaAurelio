@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', function() {
     // ESTA ES LA URL DE TU GOOGLE APPS SCRIPT
     // ¡REEMPLAZA "TU_URL_DE_APPS_SCRIPT_AQUI" CON LA URL REAL DE TU DEPLOYMENT!
-    const appsScriptURL = "https://script.google.com/macros/s/AKfycbxKPVfKa-FxdLhj-xaCHJEYdLj7QJbahtFOIusbrz88Gz8gZ9nNCKvdQfYqLWB3AjMx/exec";
+    const appsScriptURL = "https://script.google.com/macros/s/AKfycby8f5i2oWlSn_ioH3Yf1aEuWARW6TVieIl4-WW8OIAyATfEmTAYjtKQWzsfd012QjiB/exec";
 
     // Referencia al spinner de carga
     const loadingSpinner = document.getElementById('loadingSpinner');
