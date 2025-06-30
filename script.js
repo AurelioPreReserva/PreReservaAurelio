@@ -1,11 +1,13 @@
 document.addEventListener('DOMContentLoaded', function() {
+    // Es crucial que esta URL sea la de tu implementación de Web App (/exec)
     const appsScriptURL = "https://script.google.com/macros/s/AKfycbzrCzIoSm5-7HTQ0XlAlbH6jLr21S4NVPuPkePO0J_HQ2B-cD2kkuh4TCgFE15-MSlr/exec";
     const today = new Date().toISOString().slice(0, 10);
+
+    // Inicialización de campos y valores
     document.getElementById('fechaHoy').value = today;
     document.getElementById('idPreReserva').value = '0' + Math.floor(Math.random() * 100000).toString().padStart(5, '0');
 
-    // Referencia al spinner de carga
-    const loadingSpinner = document.getElementById('loadingSpinner'); //
+    const loadingSpinner = document.getElementById('loadingSpinner');
 
     const vendedores = ['VAQUERO', 'TURBO', 'LUISA', 'DUDU', 'CHELO', 'LUCAS', 'FISU', 'NICO', 'NUESTRO', 'LUCHO'];
     const vendedorSelect = document.getElementById('vendedor');
@@ -72,7 +74,6 @@ document.addEventListener('DOMContentLoaded', function() {
                             <option value="CAMP-PRESKI">CAMP-PRESKI</option>
                             <option value="PANT-CAMP">PANT-CAMP</option>
                             <option value="CAMP-GUANT-PANT">CAMP-GUANT-PANT</option>
-                           
                         </select>
                     </div>
                     <div class="form-group col-md-6">
@@ -131,13 +132,13 @@ document.addEventListener('DOMContentLoaded', function() {
     function addPaxAmountListeners() {
         const montoAlquilerPaxInputs = document.querySelectorAll('.monto-alquiler-pax');
         montoAlquilerPaxInputs.forEach(input => {
-            input.removeEventListener('input', calculateTotalAlquilerFromPax);
+            input.removeEventListener('input', calculateTotalAlquilerFromPax); // Previene duplicados
             input.addEventListener('input', calculateTotalAlquilerFromPax);
         });
 
         const montoClasePaxInputs = document.querySelectorAll('.monto-clase-pax');
         montoClasePaxInputs.forEach(input => {
-            input.removeEventListener('input', calculateTotalClasesFromPax);
+            input.removeEventListener('input', calculateTotalClasesFromPax); // Previene duplicados
             input.addEventListener('input', calculateTotalClasesFromPax);
         });
     }
@@ -241,14 +242,77 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('siPagoTotal').addEventListener('change', window.togglePaymentFields);
     document.getElementById('tipoDePago').addEventListener('change', calculateRestaPagar);
 
+    // Disparar eventos iniciales para poblar campos y calcular totales
     document.getElementById('cantidadPasajeros').dispatchEvent(new Event('input'));
     window.togglePaymentFields();
+
+    // Función para generar el HTML del ticket
+    function generateTicketHtml(data) {
+        let paxDetailsHtml = '';
+        const numPasajeros = parseInt(data.CANTIDAD_PASAJEROS || 0);
+
+        for (let i = 1; i <= numPasajeros; i++) {
+            const montoAlquilerPax = (parseFloat(data[`MONTO_ALQUILER_PAX${i}`]) || 0).toFixed(2);
+            const montoClasePax = (parseFloat(data[`MONTO_CLASE_PAX${i}`]) || 0).toFixed(2);
+
+            paxDetailsHtml += `
+                <div class="pax-detail">
+                    <h4>Pasajero ${i}</h4>
+                    <p><strong>Tablas:</strong> ${data[`TABLAS_PAX${i}`] || '-'}</p>
+                    <p><strong>Botas:</strong> ${data[`BOTAS_PAX${i}`] || '-'}</p>
+                    <p><strong>Ropa:</strong> ${data[`ROPA_PAX${i}`] || '-'}</p>
+                    <p><strong>Casco/Antiparras:</strong> ${data[`CASCO_Y_ANTIPARRAS_PAX${i}`] || '-'}</p>
+                    <p><strong>Clases:</strong> ${data[`CLASES_PAX${i}`] || '-'}</p>
+                    <p><strong>Valor Alquiler:</strong> $${montoAlquilerPax}</p>
+                    <p><strong>Valor Clases:</strong> $${montoClasePax}</p>
+                </div>
+            `;
+        }
+
+        const montoTotalAlquiler = parseFloat(data.MONTO_TOTAL_ALQUILER) || 0;
+        const montoTotalClases = parseFloat(data.MONTO_TOTAL_CLASES) || 0;
+        const descuento = parseFloat(data.DESCUENTO) || 0;
+        const montoTotalFinal = parseFloat(data.MONTO_TOTAL_FINAL) || 0;
+        const montoPagado = parseFloat(data.MONTO_PAGADO) || 0;
+        const restaPagar = parseFloat(data.RESTA_PAGAR) || 0;
+
+        return `
+            <div class="ticket" style="font-family: Arial, sans-serif; max-width: 400px; margin: 20px auto; padding: 20px; border: 1px solid #eee; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
+                <h2 style="text-align: center; color: #333;">DETALLE DE RESERVA</h2>
+                <div style="border-top: 1px dashed #ccc; margin: 10px 0;"></div>
+                <p style="display: flex; justify-content: space-between;"><span>N° Reserva:</span> <span>#${data.ID_PRE_RESERVA || '-'}</span></p>
+                <p style="display: flex; justify-content: space-between;"><span>Fecha:</span> <span>${data.FECHA || '-'}</span></p>
+                <p style="display: flex; justify-content: space-between;"><span>Días Alquiler:</span> <span>${data.DIAS || '-'}</span></p>
+                <p style="display: flex; justify-content: space-between;"><span>Cant. Pasajeros:</span> <span>${data.CANTIDAD_PASAJEROS || '-'}</span></p>
+                <p style="display: flex; justify-content: space-between;"><span>Cliente:</span> <span>${data.NOMBRE_COMPLETO || '-'}</span></p>
+                <p style="display: flex; justify-content: space-between;"><span>Contacto:</span> <span>${data.TEL_MAIL || '-'}</span></p>
+                <p style="display: flex; justify-content: space-between;"><span>Vendedor:</span> <span>${data.VENDEDOR || '-'}</span></p>
+                <p style="display: flex; justify-content: space-between;"><span>Estado de Pago:</span> <span>${data.ESTADO || '-'}</span></p>
+                <div style="border-top: 1px dashed #ccc; margin: 10px 0;"></div>
+                <h3>Detalle por Pasajero:</h3>
+                ${paxDetailsHtml}
+                <div style="border-top: 1px dashed #ccc; margin: 10px 0;"></div>
+                <p style="display: flex; justify-content: space-between;"><span>Subtotal Alquiler:</span> <span>$${montoTotalAlquiler.toFixed(2)}</span></p>
+                <p style="display: flex; justify-content: space-between;"><span>Subtotal Clases:</span> <span>$${montoTotalClases.toFixed(2)}</span></p>
+                <p style="display: flex; justify-content: space-between;"><span>Descuento:</span> <span>$${descuento.toFixed(2)}</span></p>
+                <p style="display: flex; justify-content: space-between; font-weight: bold; font-size: 1.1em;"><span>MONTO TOTAL FINAL:</span> <span>$${montoTotalFinal.toFixed(2)}</span></p>
+                <p style="display: flex; justify-content: space-between;"><span>Método de Pago:</span> <span>${data.METODO_DE_PAGO || '-'}</span></p>
+                <p style="display: flex; justify-content: space-between;"><span>Tipo de Pago:</span> <span>${data.TIPO_DE_PAGO || '-'}</span></p>
+                <p style="display: flex; justify-content: space-between;"><span>Monto Pagado:</span> <span>$${montoPagado.toFixed(2)}</span></p>
+                <p style="display: flex; justify-content: space-between;"><span>Resta Pagar:</span> <span>$${restaPagar.toFixed(2)}</span></p>
+                <div style="border-top: 1px dashed #ccc; margin: 10px 0;"></div>
+                <p><strong>Observaciones:</strong> ${data.OBSERVACIONES || '-'}</p>
+                <div style="border-top: 1px dashed #ccc; margin: 10px 0;"></div>
+                <p style="text-align: center; font-style: italic;">¡Gracias por su reserva!</p>
+            </div>
+        `;
+    }
+
 
     document.getElementById('reservaForm').addEventListener('submit', function(event) {
         event.preventDefault();
 
-        // MOSTRAR SPINNER AL INICIO DEL ENVÍO
-        loadingSpinner.style.display = 'flex'; //
+        loadingSpinner.style.display = 'flex';
 
         const form = event.target;
         const payload = {};
@@ -272,6 +336,7 @@ document.addEventListener('DOMContentLoaded', function() {
             payload[`MONTO_CLASE_PAX${i}`] = parseFloat(document.getElementById(`montoClasePax${i}`).value) || 0;
         }
 
+        // Limpia los campos de PAX adicionales que no se usen (hasta un máximo razonable, e.g., 15)
         for (let i = numPax + 1; i <= 15; i++) {
             payload[`TABLAS_PAX${i}`] = '';
             payload[`BOTAS_PAX${i}`] = '';
@@ -282,6 +347,7 @@ document.addEventListener('DOMContentLoaded', function() {
             payload[`MONTO_CLASE_PAX${i}`] = 0;
         }
 
+        // Asegurarse de que los valores numéricos sean tratados como números
         payload['DIAS'] = parseInt(payload['DIAS']) || 0;
         payload['CANTIDAD_PASAJEROS'] = parseInt(payload['CANTIDAD_PASAJEROS']) || 0;
         payload['MONTO_TOTAL_ALQUILER'] = parseFloat(payload['MONTO_TOTAL_ALQUILER']) || 0;
@@ -292,26 +358,38 @@ document.addEventListener('DOMContentLoaded', function() {
         payload['RESTA_PAGAR'] = parseFloat(payload['RESTA_PAGAR']) || 0;
         payload['MONTO_PAGADO'] = parseFloat(payload['MONTO_PAGADO']) || 0;
 
-        delete payload['SITUACION'];
-
         const estadoInput = document.getElementById('estado');
         if (estadoInput) {
             payload['ESTADO'] = estadoInput.value;
         }
 
-        const dataToSend = payload;
+        // Generar el HTML del ticket para enviarlo al backend
+        const ticketHtmlContent = generateTicketHtml(payload);
+
+        // PRIMERA LLAMADA: Guardar la reserva
+        const saveReservationData = {
+            action: 'addPreReserva',
+            payload: payload,
+            ticketHtml: ticketHtmlContent // Pasamos el HTML para reusarlo
+        };
 
         fetch(appsScriptURL, {
             method: 'POST',
             headers: {
-                'Content-Type': 'text/plain;charset=utf-8'
+                'Content-Type': 'application/json' // CAMBIADO: Usar application/json
             },
-            body: JSON.stringify(dataToSend)
+            body: JSON.stringify(saveReservationData)
         })
         .then(response => {
             if (!response.ok) {
                 return response.text().then(errorText => {
-                    throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+                    // Intenta parsear el error como JSON si es posible
+                    try {
+                        const errorJson = JSON.parse(errorText);
+                        throw new Error(`HTTP error! status: ${response.status}, message: ${errorJson.message || errorText}`);
+                    } catch (e) {
+                        throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+                    }
                 });
             }
             return response.json();
@@ -319,6 +397,7 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(result => {
             if (result.success) {
                 alert('¡Reserva enviada exitosamente!');
+                // Restablecer el formulario
                 form.reset();
                 document.getElementById('paxFieldsContainer').innerHTML = '';
                 document.getElementById('idPreReserva').value = '0' + Math.floor(Math.random() * 100000).toString().padStart(5, '0');
@@ -326,6 +405,33 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.getElementById('cantidadPasajeros').value = 1;
                 document.getElementById('cantidadPasajeros').dispatchEvent(new Event('input'));
                 window.togglePaymentFields();
+
+                // SEGUNDA LLAMADA: Si la reserva fue exitosa y tenemos el HTML del ticket, solicitar el PDF
+                if (result.ticketHtml && result.id) {
+                    const generatePdfData = {
+                        action: 'generatePdf',
+                        htmlContent: result.ticketHtml,
+                        idPreReserva: result.id
+                    };
+                    
+                    // Crear un formulario temporal para la solicitud POST que generará el PDF
+                    // Esto es necesario para que el navegador trate la respuesta como un archivo y la abra en una nueva pestaña.
+                    const tempForm = document.createElement('form');
+                    tempForm.action = appsScriptURL;
+                    tempForm.method = 'POST';
+                    tempForm.target = '_blank'; // Abrir en una nueva pestaña
+
+                    const input = document.createElement('input');
+                    input.type = 'hidden';
+                    // El nombre 'data' DEBE coincidir con cómo tu Apps Script lo lee en e.parameter.data
+                    input.name = 'data';
+                    input.value = encodeURIComponent(JSON.stringify(generatePdfData)); // Codificar la URL para asegurar que el JSON no se corrompa
+                    
+                    tempForm.appendChild(input);
+                    document.body.appendChild(tempForm);
+                    tempForm.submit(); // Envía el formulario para abrir el PDF
+                    document.body.removeChild(tempForm); // Elimina el formulario temporal
+                }
             } else {
                 alert('Hubo un error al enviar el formulario: ' + result.message);
             }
@@ -335,8 +441,7 @@ document.addEventListener('DOMContentLoaded', function() {
             alert('Hubo un error de conexión: ' + error.message);
         })
         .finally(() => {
-            // OCULTAR SPINNER SIEMPRE AL FINALIZAR LA SOLICITUD (éxito o error)
-            loadingSpinner.style.display = 'none'; //
+            loadingSpinner.style.display = 'none';
         });
     });
 
