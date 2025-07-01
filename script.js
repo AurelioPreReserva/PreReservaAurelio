@@ -301,13 +301,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const dataToSend = payload;
 
-        fetch(appsScriptURL, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'text/plain;charset=utf-8'
-            },
-            body: JSON.stringify(dataToSend)
-        })
+      fetch(appsScriptURL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json' // CAMBIO CLAVE AQUÍ
+            },
+            body: JSON.stringify(dataToSend)
+        })
         .then(response => {
             if (!response.ok) {
                 return response.text().then(errorText => {
