@@ -8,168 +8,258 @@
 
     /* Colores para texto */
     --text-color-dark: var(--color-primary-dark);
-    --text-color-light: var(--color-light-cream);
+    --text-color-light: #ffffff; /* Blanco puro para texto sobre fondos oscuros */
+    --text-color-light-cream: var(--color-light-cream); /* Para texto claro sobre fondos claros */
+
+    /* Espaciado */
+    --spacing-xs: 5px;
+    --spacing-sm: 10px;
+    --spacing-md: 20px;
+    --spacing-lg: 30px;
+    --spacing-xl: 40px;
 }
 
 body {
-    font-family: Arial, sans-serif; /* Puedes cambiar la fuente si tienes una específica en mente */
-    background-color: var(--color-light-cream); /* Fondo principal de la página */
+    font-family: 'Inter', sans-serif; /* Aplicar la nueva fuente */
+    background-color: var(--color-light-cream);
     color: var(--text-color-dark);
     margin: 0;
-    padding: 20px;
-    box-sizing: border-box; /* Asegura que padding no aumente el tamaño total */
-    min-height: 100vh; /* Para que el fondo cubra toda la altura */
+    padding: var(--spacing-md); /* Padding general más consistente */
+    box-sizing: border-box;
+    min-height: 100vh;
     display: flex;
     justify-content: center;
-    align-items: flex-start; /* Alinea al inicio para que el contenido no se centre verticalmente de golpe */
-    padding-top: 40px; /* Espacio superior para el formulario */
-    padding-bottom: 40px; /* Espacio inferior */
+    align-items: flex-start;
+    padding-top: var(--spacing-xl);
+    padding-bottom: var(--spacing-xl);
+    overflow-x: hidden; /* Evita el scroll horizontal */
 }
 
-.container {
-    background-color: #ffffff; /* Fondo del contenedor principal, blanco para contraste */
-    border-radius: 15px; /* Bordes redondeados como en la imagen */
-    padding: 25px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); /* Sombra suave para un efecto flotante */
-    max-width: 100%; /* Por defecto, ocupa todo el ancho disponible en móvil */
-    margin: 0 auto; /* Centrar el contenedor */
+/* Contenedor principal del formulario */
+.container.mobile-container {
+    background-color: #ffffff;
+    border-radius: 18px; /* Bordes más redondeados */
+    padding: var(--spacing-lg); /* Padding interno más generoso */
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08); /* Sombra más suave y moderna */
+    max-width: 100%; /* Asegura que en móvil ocupe el ancho completo */
+    width: 100%; /* Ocupa el 100% del espacio disponible */
+    margin: 0 auto;
+    box-sizing: border-box;
 }
 
-h2 {
-    color: var(--color-accent-brown); /* Título en color cobre */
+/* Títulos principales */
+.form-title {
+    color: var(--color-accent-brown);
     text-align: center;
-    margin-bottom: 25px;
-    font-weight: bold;
-    font-size: 1.8rem; /* Tamaño de fuente adaptable */
+    margin-bottom: var(--spacing-sm); /* Menos espacio entre título y subtítulo */
+    font-weight: 700; /* Más audaz */
+    font-size: 2.2rem; /* Tamaño para móvil */
+    letter-spacing: -0.5px; /* Ligera compresión para un look moderno */
 }
 
-h5 {
-    color: var(--color-secondary-olive); /* Títulos de pasajeros en verde oliva */
-    border-bottom: 2px solid var(--color-accent-orange); /* Línea inferior para separar */
-    padding-bottom: 10px;
-    margin-top: 25px;
-    margin-bottom: 20px;
+.form-subtitle {
+    color: var(--color-secondary-olive);
+    text-align: center;
+    margin-bottom: var(--spacing-lg);
+    font-weight: 400; /* Regular */
     font-size: 1.2rem;
+    opacity: 0.8; /* Ligeramente más sutil */
 }
 
+/* Encabezados de sección */
+.form-section h4 {
+    color: var(--color-primary-dark); /* Color más oscuro para los títulos de sección */
+    font-size: 1.2rem; /* Tamaño para móvil */
+    font-weight: 600; /* Semi-bold */
+    margin-bottom: var(--spacing-md);
+    padding-bottom: var(--spacing-xs);
+    border-bottom: 2px solid var(--color-accent-orange); /* Un sutil subrayado */
+    text-transform: uppercase; /* MAYÚSCULAS para mayor énfasis */
+    letter-spacing: 0.5px;
+}
+
+/* Contenedores de cada sección */
+.form-section {
+    background-color: var(--color-light-cream); /* Fondo ligeramente diferente para las secciones */
+    border-radius: 12px; /* Bordes redondeados para las secciones */
+    padding: var(--spacing-md);
+    margin-bottom: var(--spacing-lg); /* Espacio entre secciones */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05); /* Sombra muy sutil */
+}
+/* Eliminar HRs ya que las secciones ahora las reemplazan visualmente */
+hr {
+    display: none;
+}
+
+
+/* Etiquetas de los campos */
 .form-group label {
-    font-weight: bold;
-    color: var(--color-primary-dark); /* Etiquetas en verde oscuro */
-    margin-bottom: 5px;
+    font-weight: 600; /* Semi-bold */
+    color: var(--color-primary-dark);
+    margin-bottom: var(--spacing-xs); /* Menos espacio, más compacto */
+    display: block; /* Asegura que cada label esté en su propia línea */
+    font-size: 0.95rem; /* Tamaño de fuente ligeramente ajustado */
 }
 
-.form-control {
-    border-radius: 8px; /* Bordes más redondeados para los inputs */
-    border: 1px solid #ced4da;
-    padding: 10px 15px;
+/* Estilo general para todos los inputs y selects modernos */
+.form-control.modern-input {
+    height: auto;
+    border-radius: 10px; /* Bordes más generosos */
+    border: 1px solid #e0e0e0; /* Borde más claro */
+    padding: 8px 15px; /* Más padding interno */
     font-size: 1rem;
     color: var(--text-color-dark);
-    transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    background-color: #f9f9f9; /* Fondo ligeramente grisáceo */
+    transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out, background-color 0.2s ease-in-out;
+    
 }
 
-.form-control:focus {
-    border-color: var(--color-accent-orange); /* Borde de foco en naranja */
-    box-shadow: 0 0 0 0.2rem rgba(221, 161, 94, 0.25); /* Sombra de foco más suave */
+.form-control.modern-input:focus {
+    height: auto;
+    width: auto;
+    border-color: var(--color-accent-orange);
+    border-radius: 8px;
+    box-shadow: 0 0 0 0.2rem rgba(221, 161, 94, 0.2); /* Sombra de foco más suave */
+    background-color: #ffffff; /* Blanco al enfocar */
 }
 
 /* Estilo para los input-group (para los campos de monto) */
 .input-group-prepend .input-group-text {
-    background-color: var(--color-secondary-olive); /* Fondo del signo $ */
-    color: var(--text-color-light); /* Color del signo $ */
+    background-color: var(--color-secondary-olive);
+    color: var(--text-color-light); /* Blanco puro */
     border: 1px solid var(--color-secondary-olive);
-    border-radius: 8px 0 0 8px; /* Bordes redondeados solo a la izquierda */
+    border-radius: 10px 0 0 10px; /* Coincide con el radio del input */
+    padding: 12px 15px; /* Alinea el padding con los inputs */
 }
 
-hr {
-    border-top: 2px solid var(--color-secondary-olive); /* Separador más notorio */
-    margin-top: 30px;
-    margin-bottom: 30px;
+/* Checkbox (Flexibilidad) */
+.form-check-input {
+    margin-top: 0.3rem; /* Ajuste vertical */
+}
+.form-check-label {
+    font-weight: 400; /* Regular weight */
+    color: var(--color-primary-dark);
+    font-size: 0.95rem;
 }
 
-.btn-primary {
-    background-color: var(--color-accent-brown); /* Botón principal en color cobre */
-    border-color: var(--color-accent-brown);
-    color: var(--text-color-light); /* Texto en crema claro */
-    font-weight: bold;
-    padding: 12px 20px;
-    border-radius: 8px;
-    margin-top: 20px;
-    transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;
+
+/* Botones modernos */
+.btn.modern-button {
+    font-weight: 600; /* Semi-bold */
+    padding: 14px 25px; /* Más padding */
+    border-radius: 10px; /* Bordes más redondeados */
+    text-transform: uppercase; /* MAYÚSCULAS */
+    letter-spacing: 0.5px;
+    margin-top: var(--spacing-md); /* Espacio superior para botones */
+    transition: all 0.25s ease-in-out; /* Transición más suave */
 }
 
-.btn-primary:hover {
-    background-color: var(--color-secondary-olive); /* Hover en verde oliva */
-    border-color: var(--color-secondary-olive);
-    color: var(--text-color-light);
-}
-
-.btn-secondary {
-    background-color: var(--color-secondary-olive); /* Botón secundario en verde oliva */
-    border-color: var(--color-secondary-olive);
-    color: var(--text-color-light);
-    font-weight: bold;
-    padding: 12px 20px;
-    border-radius: 8px;
-    margin-top: 10px;
-    transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;
-}
-
-.btn-secondary:hover {
-    background-color: var(--color-accent-brown); /* Hover en cobre */
+.btn-primary.modern-button {
+    background-color: var(--color-accent-brown);
     border-color: var(--color-accent-brown);
     color: var(--text-color-light);
 }
 
-/* Estilos específicos para la sección de datos primarios (arriba) */
-.section-primary,
-.section-summary {
-    padding-bottom: 15px; /* Pequeño padding para separar visualmente */
+.btn-primary.modern-button:hover {
+    background-color: var(--color-secondary-olive);
+    border-color: var(--color-secondary-olive);
+    color: var(--text-color-light);
+    transform: translateY(-2px); /* Ligero efecto 3D al pasar el mouse */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.btn-secondary.modern-button {
+    background-color: var(--color-secondary-olive);
+    border-color: var(--color-secondary-olive);
+    color: var(--text-color-light);
+}
+
+.btn-secondary.modern-button:hover {
+    background-color: var(--color-accent-brown);
+    border-color: var(--color-accent-brown);
+    color: var(--text-color-light);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Ocultar el ID_PRE_RESERVA de forma accesible */
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    border: 0;
 }
 
 
-/* Adaptación para pantallas más grandes (desktops) */
-@media (min-width: 768px) {
-    .container {
-        max-width: 700px; /* Ancho máximo para el formulario en desktop */
-        padding: 40px;
-    }
-
-    h2 {
-        font-size: 2.5rem;
-    }
-
-    h5 {
-        font-size: 1.5rem;
-    }
-
-    .form-group {
-        margin-bottom: 20px;
-    }
+/* Estilos para campos de pasajeros generados dinámicamente */
+.pax-group {
+    background-color: #f0f4e8; /* Fondo ligeramente diferente para cada pasajero */
+    border-radius: 10px;
+    padding: var(--spacing-md);
+    margin-bottom: var(--spacing-md); /* Espacio entre grupos de pasajeros */
+    border: 1px solid rgba(0, 0, 0, 0.05); /* Borde sutil */
 }
 
-/* Opcional: Algunos ajustes para el layout de los pasajeros en desktop */
+.pax-group h5 {
+    color: var(--color-secondary-olive); /* Títulos de pasajeros */
+    font-size: 1.1rem; /* Un poco más pequeño que el h4 general */
+    margin-bottom: var(--spacing-md);
+    border-bottom: 1px solid var(--color-accent-orange); /* Línea más fina */
+    padding-bottom: var(--spacing-xs);
+}
+
+
+/* Media queries para adaptar a pantallas más grandes */
 @media (min-width: 768px) {
+    .container.mobile-container {
+        max-width: 600px; /* Ancho más compacto en desktop */
+        padding: var(--spacing-xl);
+    }
+
+    .form-title {
+        font-size: 2.8rem; /* Tamaño más grande para desktop */
+    }
+
+    .form-subtitle {
+        font-size: 1.4rem;
+    }
+
+    .form-section h4 {
+        font-size: 1.4rem;
+    }
+
+    /* Columnas para PAX en desktop */
     .pax-group .form-row {
-        display: flex;
-        justify-content: space-between;
-        gap: 20px; /* Espacio entre columnas */
+        display: grid; /* Usar Grid para mayor control */
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); /* Columnas responsivas */
+        gap: var(--spacing-md); /* Espacio entre columnas */
     }
-
+    
     .pax-group .form-group {
-        flex: 1; /* Para que ocupen el espacio disponible */
+        margin-bottom: 0; /* Eliminar margen si los campos están en una cuadrícula */
     }
 }
 
-/* Estilos para el spinner de carga */
+/* Estilos para el Spinner de carga (sin cambios significativos, ya estaba bien) */
 .spinner-overlay {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(255, 255, 255, 0.8); /* Fondo semitransparente blanco */
+    background-color: rgba(255, 255, 255, 0.8);
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 9999; /* Asegura que esté por encima de todo */
+    z-index: 9999;
 }
+.spinner-border {
+    width: 3rem; /* Tamaño un poco más grande */
+    height: 3rem;
+    color: var(--color-accent-brown) !important; /* Color del spinner */
+}
+

@@ -6,55 +6,67 @@
     <title>Formulario de Reserva - Aurelio Ski Rental</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="container">
-        <h2>Aurelio Ski Rental Reserva</h2>
-        <form id="reservaForm" action="" method="post">
-            <div class="section-primary">
+    <div class="container mobile-container">
+        <h2 class="form-title">Aurelio Ski Rental</h2>
+        <h3 class="form-subtitle">Formulario de Reserva</h3>
+
+        <form id="reservaForm" action="" method="post" class="modern-form">
+            <div class="form-section">
+                <h4>Detalles de la Reserva</h4>
                 <div class="form-group">
                     <label for="fechaHoy">Fecha</label>
-                    <input type="date" id="fechaHoy" name="FECHA" class="form-control" required>
+                    <input type="date" id="fechaHoy" name="FECHA" class="form-control modern-input" required>
                 </div>
-                <div class="form-group">
+                <div class="form-group visually-hidden">
                     <label for="idPreReserva">ID Pre Reserva</label>
                     <input type="text" class="form-control" id="idPreReserva" name="ID_PRE_RESERVA" readonly required>
                 </div>
                 <div class="form-group">
                     <label for="cantidadDias">Días de Alquiler</label>
-                    <input type="number" class="form-control" id="cantidadDias" name="DIAS" min="1" required>
+                    <input type="number" class="form-control modern-input" id="cantidadDias" name="DIAS" min="1" required>
+                    <div class="form-check mt-2">
+                        <input type="checkbox" class="form-check-input" id="flexibilidadCheckbox" name="FLEXIBILIDAD_CHECK">
+                        <label class="form-check-label" for="flexibilidadCheckbox">Flexible con las fechas</label>
+                    </div>
                 </div>
                 <div class="form-group">
                     <label for="nombreCompleto">Nombre Completo del Cliente</label>
-                    <input type="text" class="form-control" id="nombreCompleto" name="NOMBRE_COMPLETO" required>
+                    <input type="text" class="form-control modern-input" id="nombreCompleto" name="NOMBRE_COMPLETO" required>
                 </div>
                 <div class="form-group">
                     <label for="telMail">Teléfono / Email</label>
-                    <input type="text" class="form-control" id="telMail" name="TEL_MAIL" required>
+                    <input type="text" class="form-control modern-input" id="telMail" name="TEL_MAIL" required>
                 </div>
                 <div class="form-group">
                     <label for="vendedor">Vendedor</label>
-                    <select class="form-control" id="vendedor" name="VENDEDOR" required>
+                    <select class="form-control modern-input" id="vendedor" name="VENDEDOR" required>
                         <option value="">Seleccione</option>
                     </select>
                 </div>
                 <div class="form-group">
                     <label for="cantidadPasajeros">Cantidad de Pasajeros</label>
-                    <input type="number" class="form-control" id="cantidadPasajeros" name="CANTIDAD_PASAJEROS" min="1" max="15" required>
+                    <input type="number" class="form-control modern-input" id="cantidadPasajeros" name="CANTIDAD_PASAJEROS" min="1" max="15" required>
                 </div>
             </div>
 
-            <hr> <div id="paxFieldsContainer">
-                </div>
+            <div class="form-section" id="paxFieldsSection">
+                <h4>Detalle de Pasajeros</h4>
+                <div id="paxFieldsContainer">
+                    </div>
+            </div>
 
-            <hr> <div class="section-summary">
+            <div class="form-section">
+                <h4>Resumen y Pago</h4>
                 <div class="form-group">
                     <label for="montoTotalAlquiler">Monto Total Alquiler</label>
                     <div class="input-group">
                         <div class="input-group-prepend">
                             <span class="input-group-text">$</span>
                         </div>
-                        <input type="number" class="form-control" id="montoTotalAlquiler" name="MONTO_TOTAL_ALQUILER" step="0.01" required>
+                        <input type="number" class="form-control modern-input" id="montoTotalAlquiler" name="MONTO_TOTAL_ALQUILER" step="0.01" required>
                     </div>
                 </div>
                 <div class="form-group">
@@ -63,16 +75,16 @@
                         <div class="input-group-prepend">
                             <span class="input-group-text">$</span>
                         </div>
-                        <input type="number" class="form-control" id="montoTotalClases" name="MONTO_TOTAL_CLASES" step="0.01">
+                        <input type="number" class="form-control modern-input" id="montoTotalClases" name="MONTO_TOTAL_CLASES" step="0.01">
                     </div>
                 </div>
-                 <div class="form-group">
+                <div class="form-group">
                     <label for="descuento">Descuento</label>
                     <div class="input-group">
                         <div class="input-group-prepend">
                             <span class="input-group-text">$</span>
                         </div>
-                        <input type="number" class="form-control" id="descuento" name="DESCUENTO" step="0.01" value="0">
+                        <input type="number" class="form-control modern-input" id="descuento" name="DESCUENTO" step="0.01" value="0">
                     </div>
                 </div>
                 <div class="form-group">
@@ -81,20 +93,21 @@
                         <div class="input-group-prepend">
                             <span class="input-group-text">$</span>
                         </div>
-                        <input type="number" class="form-control" id="montoTotalFinal" name="MONTO_TOTAL_FINAL" step="0.01" required>
+                        <input type="number" class="form-control modern-input" id="montoTotalFinal" name="MONTO_TOTAL_FINAL" step="0.01" required>
                     </div>
                 </div>
+                
                 <div class="form-group">
                     <label for="siPagoTotal">¿Se Pagó el Total?</label>
-                    <select class="form-control" id="siPagoTotal" name="SI_PAGO_TOTAL" required onchange="togglePaymentFields()">
+                    <select class="form-control modern-input" id="siPagoTotal" name="SI_PAGO_TOTAL" required onchange="togglePaymentFields()">
                         <option value="">Seleccione</option>
                         <option value="SI">SI</option>
                         <option value="NO">NO</option>
                     </select>
                 </div>
-                <div class="form-group" id="metodoPagoGroup" style="display: none;">
+                <div class="form-group" id="metodoPagoGroup">
                     <label for="metodoDePago">Método de Pago</label>
-                    <select class="form-control" id="metodoDePago" name="METODO_DE_PAGO">
+                    <select class="form-control modern-input" id="metodoDePago" name="METODO_DE_PAGO">
                         <option value="">Seleccione</option>
                         <option value="EFECTIVO">EFECTIVO</option>
                         <option value="TARJETA">TARJETA</option>
@@ -102,31 +115,30 @@
                         <option value="MIXTO">MIXTO</option>
                     </select>
                 </div>
-                <div class="form-group" id="pagoParcialGroup" style="display: none;">
+                <div class="form-group" id="pagoParcialGroup">
                     <label for="pagoParcial">Pago Parcial</label>
                     <div class="input-group">
                         <div class="input-group-prepend">
                             <span class="input-group-text">$</span>
                         </div>
-                        <input type="number" class="form-control" id="pagoParcial" name="PAGO_PARCIAL" step="0.01">
+                        <input type="number" class="form-control modern-input" id="pagoParcial" name="PAGO_PARCIAL" step="0.01">
                     </div>
                 </div>
-                 <div class="form-group" id="restaPagarGroup" style="display: none;">
+                <div class="form-group" id="restaPagarGroup">
                     <label for="restaPagar">Resta Pagar</label>
                     <div class="input-group">
                         <div class="input-group-prepend">
                             <span class="input-group-text">$</span>
                         </div>
-                        <input type="number" class="form-control" id="restaPagar" name="RESTA_PAGAR" step="0.01" readonly>
+                        <input type="number" class="form-control modern-input" id="restaPagar" name="RESTA_PAGAR" step="0.01" readonly>
                     </div>
                 </div>
                 <div class="form-group">
                     <label for="tipoDePago">Tipo de Pago</label>
-                    <select class="form-control" id="tipoDePago" name="TIPO_DE_PAGO" required>
+                    <select class="form-control modern-input" id="tipoDePago" name="TIPO_DE_PAGO" required>
                         <option value="">Seleccione</option>
                         <option value="TOTAL">TOTAL</option>
                         <option value="PARCIAL">PARCIAL</option>
-                       
                     </select>
                 </div>
                 <div class="form-group">
@@ -135,33 +147,44 @@
                         <div class="input-group-prepend">
                             <span class="input-group-text">$</span>
                         </div>
-                        <input type="number" class="form-control" id="montoPagado" name="MONTO_PAGADO" step="0.01">
+                        <input type="number" class="form-control modern-input" id="montoPagado" name="MONTO_PAGADO" step="0.01">
                     </div>
                 </div>
                 <div class="form-group">
                     <label for="estado">Estado</label>
-                    <select class="form-control" id="estado" name="ESTADO" required>
+                    <select class="form-control modern-input" id="estado" name="ESTADO" required>
                         <option value="">Seleccione</option>
                         <option value="COBRADO">COBRADO</option>
                         <option value="SIN-COBRAR">SIN COBRAR</option>
-                       
                     </select>
                 </div>
                 <div class="form-group">
                     <label for="observaciones">Observaciones</label>
-                    <textarea class="form-control" id="observaciones" name="OBSERVACIONES" rows="3"></textarea>
+                    <textarea class="form-control modern-input" id="observaciones" name="OBSERVACIONES" rows="3"></textarea>
                 </div>
-
-                <button type="submit" class="btn btn-primary btn-block" id="BotonSub">Enviar Reserva</button>
-                <button type="button" class="btn btn-secondary btn-block" id="clearForm">Limpiar Formulario</button>
             </div>
+
+            <button type="submit" class="btn btn-primary btn-block modern-button" id="BotonSub">Enviar Reserva</button>
+            <button type="button" class="btn btn-secondary btn-block modern-button" id="clearForm">Limpiar Formulario</button>
         </form>
     </div>
+
     <div id="loadingSpinner" class="spinner-overlay" style="display: none;">
-    <div class="spinner-border text-primary" role="status">
-        <span class="sr-only">Cargando...</span>
+        <div class="spinner-border text-primary" role="status">
+            <span class="sr-only">Cargando...</span>
+        </div>
     </div>
-</div>
+
+    <div id="printableTicketModal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <span class="close-button" onclick="closePrintableTicket()">×</span>
+            <h3>Ticket de Reserva</h3>
+            <div id="ticketContent">
+                </div>
+            <button class="btn btn-primary mt-3" onclick="printTicket()">Imprimir Ticket</button>
+        </div>
+    </div>
+
 
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
