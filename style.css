@@ -115,8 +115,7 @@ hr {
 }
 
 .form-control.modern-input:focus {
-    height: auto;
-    width: auto;
+    
     border-color: var(--color-accent-orange);
     border-radius: 8px;
     box-shadow: 0 0 0 0.2rem rgba(221, 161, 94, 0.2); /* Sombra de foco más suave */
