@@ -79,7 +79,7 @@ body {
 }
 
 /* Contenedores de cada sección */
-.form-section {
+.form-section, .modal-content {
     background-color: var(--color-light-cream); /* Fondo ligeramente diferente para las secciones */
     border-radius: 12px; /* Bordes redondeados para las secciones */
     padding: var(--spacing-md);
@@ -261,4 +261,98 @@ hr {
     height: 3rem;
     color: var(--color-accent-brown) !important; /* Color del spinner */
 }
+#lastReservationsContainer{
+    display: flex;
+    width: auto;
+}
 
+/* Tabla de últimas prerreservas */
+#lastReservationsContainer table {
+    
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+#lastReservationsContainer th,
+#lastReservationsContainer td {
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  font-size: 0.9rem;
+}
+#lastReservationsContainer th {
+    
+  background-color: var(--color-secondary-olive);
+  color: var(--text-color-light);
+  text-transform: uppercase;
+}
+
+/* Formulario de edición en modal */
+#editReservationForm .form-group {
+  margin-bottom: var(--spacing-sm);
+}
+#editReservationForm label {
+  font-size: 0.9rem;
+}
+#editReservationForm .form-control {
+  font-size: 0.9rem;
+}
+
+/* Ajuste para el botón dentro del modal */
+#updateReservationButton {
+  width: 100%;
+}
+
+/* 1) Asegurar scroll horizontal si la tabla es muy ancha */
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+}
+
+/* Contenedor en flex-column en móvil, grid en pantallas más grandes */
+#lastReservationsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+/* Card base */
+.reservation-card {
+  background: #ffffff;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: var(--spacing-md);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+/* Header de la card */
+.reservation-card .card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-sm);
+}
+
+.reservation-card .card-header .card-id {
+  font-weight: 600;
+}
+
+/* Body de la card */
+.reservation-card .card-body p {
+  display: flex;
+  justify-content: space-between;
+  margin: 0.3rem 0;
+}
+
+.reservation-card .card-body p span:first-child {
+  font-weight: 500;
+  color: var(--color-secondary-olive);
+}
+
+/* En desktop, grid de cards */
+@media (min-width: 768px) {
+  #lastReservationsContainer {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: var(--spacing-md);
+  }
+}

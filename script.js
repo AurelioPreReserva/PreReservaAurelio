@@ -1,10 +1,45 @@
+const appsScriptURL = "https://script.google.com/macros/s/AKfycby8f5i2oWlSn_ioH3Yf1aEuWARW6TVieIl4-WW8OIAyATfEmTAYjtKQWzsfd012QjiB/exec";
+// Lista global de vendedores, para el filtro, el form de carga y el modal
+const vendedores = [
+  'VAQUERO','TURBO','LUISA','DUDU','CHELO',
+  'LUCAS','FISU','NICO','NUESTRO','LUCHO'
+];
+
+const loadingSpinner = document.getElementById('loadingSpinner');
+
+
+// ─── Opciones globales para los selects del modal de edición ─────────────────
+const TABLAS_OPTIONS = [
+  "SKI COMPLETO HEAD","SKI COMPLETO FISHER","SKI COMPLETO VOLKL",
+  "SKI JUNIOR","BASTONES","SNOW COMPLETO","TABLA SNOW","TABLA SKI"
+];
+const BOTAS_OPTIONS = [
+  "SKI COMPLETO HEAD","SKI COMPLETO FISHER","SKI COMPLETO VOLKL",
+  "SKI JUNIOR","SNOW BOTAS","SKI BOTAS"
+];
+const ROPA_OPTIONS = [
+  "ROPA COMPLETO","CAMPERA","PANTALON","GUANTES","PRE-SKI",
+  "PANT-GUAN","PANT-GUAN-PRESKI","PANT-PRESKI","CAMP-GUANTES",
+  "CAMP-GUANTES-PRESKI","CAMP-PRESKI","CAMP-GUANT-PANT","PANT-CAMP"
+];
+const CASCO_OPTIONS = [
+  "CASCO Y ANTIPARRAS","CASCO","ANTIPARRAS",
+  "TRINEO MEDIANO","TRINEO DOBLE","CULI PATIN"
+];
+const CLASES_OPTIONS = [
+  "SIN CLASE","SKI GRUPAL","SNOW GRUPAL","SKI PRIVADA","SNOW PRIVADA"
+];
+const SI_PAGO_OPTIONS = ["SI","NO"];
+const METODO_PAGO_OPTIONS = ["EFECTIVO","TARJETA","TRANSFERENCIA","MIXTO"];
+const TIPO_PAGO_OPTIONS = ["TOTAL","PARCIAL","NINGUNO"];
+const ESTADO_OPTIONS = ["COBRADO","SIN-COBRAR"];
+
 document.addEventListener('DOMContentLoaded', function() {
     // ESTA ES LA URL DE TU GOOGLE APPS SCRIPT
     // ¡REEMPLAZA "TU_URL_DE_APPS_SCRIPT_AQUI" CON LA URL REAL DE TU DEPLOYMENT!
-    const appsScriptURL = "https://script.google.com/macros/s/AKfycby8f5i2oWlSn_ioH3Yf1aEuWARW6TVieIl4-WW8OIAyATfEmTAYjtKQWzsfd012QjiB/exec";
+    
 
-    // Referencia al spinner de carga
-    const loadingSpinner = document.getElementById('loadingSpinner');
+    
 
     // Set today's date
     const today = new Date().toISOString().slice(0, 10);
@@ -13,7 +48,7 @@ document.addEventListener('DOMContentLoaded', function() {
    
 
     // Populate Vendedor dropdown
-    const vendedores = ['VAQUERO', 'TURBO', 'LUISA', 'DUDU', 'CHELO', 'LUCAS', 'FISU', 'NICO', 'NUESTRO', 'LUCHO'];
+  
     const vendedorSelect = document.getElementById('vendedor');
     vendedores.forEach(vendedor => {
         const option = document.createElement('option');
@@ -21,6 +56,19 @@ document.addEventListener('DOMContentLoaded', function() {
         option.textContent = vendedor;
         vendedorSelect.appendChild(option);
     });
+
+    // Tras poblar tu select de carga, llenamos también el filtro:
+const filterVendedorSelect = document.getElementById('filterVendedor');
+vendedores.forEach(v => {
+  const opt = document.createElement('option');
+  opt.value = v;
+  opt.textContent = v;
+  filterVendedorSelect.appendChild(opt);
+});
+
+// Cada vez que cambie el filtro, recargo las prerreservas:
+filterVendedorSelect.addEventListener('change', fetchLastReservations);
+
 
     // Function to generate dynamic pax fields
     document.getElementById('cantidadPasajeros').addEventListener('input', function() {
@@ -249,9 +297,16 @@ document.addEventListener('DOMContentLoaded', function() {
             tipoDePagoSelect.value = 'TOTAL'; // Asegura que el select de tipo de pago sea TOTAL
         } else if (siPagoTotal === 'NO') {
             const pagoParcial = parseFloat(pagoParcialInput.value) || 0;
-            montoPagado = pagoParcial;
-            restaPagar = montoTotalFinal - pagoParcial;
-            tipoDePagoSelect.value = 'PARCIAL'; // Asegura que el select de tipo de pago sea PARCIAL
+if (pagoParcial > 0) {
+  montoPagado = pagoParcial;
+  restaPagar = montoTotalFinal - pagoParcial;
+  tipoDePagoSelect.value = 'PARCIAL';
+} else {
+  // ningún pago realizado
+  montoPagado = 0;
+  restaPagar = montoTotalFinal;
+  tipoDePagoSelect.value = 'NINGUNO';
+}
         } else {
             montoPagado = 0;
             restaPagar = montoTotalFinal;
@@ -335,7 +390,7 @@ document.addEventListener('DOMContentLoaded', function() {
         payload['MONTO_TOTAL_FINAL'] = parseFloat(payload['MONTO_TOTAL_FINAL']) || 0;
         payload['PAGO_PARCIAL'] = parseFloat(payload['PAGO_PARCIAL']) || 0;
         payload['RESTA_PAGAR'] = parseFloat(payload['RESTA_PAGAR']) || 0;
-        payload['MONTO_PAGADO'] = parseFloat(payload['MONTO_PAGADO']) || 0;
+        payload['MONTO_PAGADO_PRE_RESERVA'] = parseFloat(payload['MONTO_PAGADO_PRE_RESERVA']) || 0;
 
         // ELIMINAR LA COLUMNA "SITUACION" ANTES DE ENVIAR (se manejará en el backend)
         delete payload['SITUACION'];
@@ -429,7 +484,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const montoTotalClases = parseFloat(data.MONTO_TOTAL_CLASES) || 0;
         const descuento = parseFloat(data.DESCUENTO) || 0;
         const montoTotalFinal = parseFloat(data.MONTO_TOTAL_FINAL) || 0;
-        const montoPagado = parseFloat(data.MONTO_PAGADO) || 0; 
+        const montoPagado = parseFloat(data.MONTO_PAGADO_PRE_RESERVA) || 0; 
         const restaPagar = parseFloat(data.RESTA_PAGAR) || 0;
 
         // Formatear la fecha para el ticket si es necesario (ej. de YYYY-MM-DD a DD/MM/YYYY)
@@ -559,4 +614,423 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
+// ---------- NUEVAS FUNCIONES PARA LISTAR Y EDITAR ----------
 
+// 1) Traer últimas 10 prerreservas filtradas por vendedor
+function fetchLastReservations() {
+const vendedor = document.getElementById('filterVendedor').value;
+
+
+  if (!vendedor) return; // si no hay vendedor seleccionado, no hacemos nada
+
+  fetch(`${appsScriptURL}?action=list&vendedor=${encodeURIComponent(vendedor)}`)
+    .then(res => res.json())
+    .then(data => renderLastReservations(data))
+    .catch(e => console.error('Error al listar prerreservas:', e));
+}
+
+// 2) Dibujar la tabla en el contenedor
+function renderLastReservations(data) {
+  const container = document.getElementById('lastReservationsContainer');
+  if (!data.length) {
+    container.innerHTML = '<p>No hay prerreservas para este vendedor.</p>';
+    return;
+  }
+
+  let html = '';
+  data.forEach(item => {
+    html += `
+      <div class="reservation-card">
+        <div class="card-header">
+          <span class="card-id">#${item.ID_PRE_RESERVA}</span>
+          <button class="btn btn-sm btn-secondary"
+                  onclick='openEditReservationModal(${JSON.stringify(item)})'>
+            Editar
+          </button>
+        </div>
+        <div class="card-body">
+          <p><span>Fecha:</span> <span>${item.FECHA}</span></p>
+          <p><span>Cliente:</span> <span>${item.NOMBRE_COMPLETO}</span></p>
+          <p><span>Pasajeros:</span> <span>${item.CANTIDAD_PASAJEROS}</span></p>
+          <p><span>Total:</span> <span>$${item.MONTO_TOTAL_FINAL}</span></p>
+          <p><span>Estado:</span> <span>${item.ESTADO}</span></p>
+        </div>
+      </div>
+    `;
+  });
+
+  container.innerHTML = html;
+}
+
+// 3) Abrir modal y poblar formulario dinámicamente
+function openEditReservationModal(item) {
+  const form = document.getElementById('editReservationForm');
+  form.innerHTML = '';
+
+  // ————————— Hidden ID —————————
+  form.innerHTML += `
+    <input type="hidden" name="ID_PRE_RESERVA" value="${item.ID_PRE_RESERVA}">
+  `;
+
+  // ————— Fecha en DD/MM/AAAA —————
+// ————— Fecha en DD/MM/AAAA —————
+let fechaDDMMYYYY = '';
+if (item.FECHA) {
+  // 1) Partimos por la 'T' para quedarnos solo con 'YYYY-MM-DD'
+  const [isoDate] = item.FECHA.split('T');
+  // 2) Descomponemos en partes
+  const [yyyy, mm, dd] = isoDate.split('-');
+  // 3) Rearmamos el formato
+  fechaDDMMYYYY = `${dd}/${mm}/${yyyy}`;
+}
+form.innerHTML += `
+  <div class="form-group">
+    <label for="edit_FECHA">Fecha (DD/MM/AAAA)</label>
+    <input type="text"
+           class="form-control"
+           id="edit_FECHA"
+           name="FECHA"
+           value="${fechaDDMMYYYY}"
+           placeholder="DD/MM/AAAA">
+  </div>`;
+
+
+  // ————————— Campos básicos —————————
+  form.innerHTML += `
+    <div class="form-group">
+      <label for="edit_DIAS">Días de Alquiler</label>
+      <input type="number"
+             class="form-control"
+             id="edit_DIAS"
+             name="DIAS"
+             value="${item.DIAS||0}">
+    </div>
+    <div class="form-group">
+      <label for="edit_NOMBRE_COMPLETO">Nombre Completo</label>
+      <input type="text"
+             class="form-control"
+             id="edit_NOMBRE_COMPLETO"
+             name="NOMBRE_COMPLETO"
+             value="${item.NOMBRE_COMPLETO||''}">
+    </div>
+    <div class="form-group">
+      <label for="edit_TEL_MAIL">Teléfono / Email</label>
+      <input type="text"
+             class="form-control"
+             id="edit_TEL_MAIL"
+             name="TEL_MAIL"
+             value="${item.TEL_MAIL||''}">
+    </div>
+    <div class="form-group">
+      <label for="edit_VENDEDOR">Vendedor</label>
+      <select class="form-control"
+              id="edit_VENDEDOR"
+              name="VENDEDOR">
+        ${vendedores.map(v =>
+          `<option value="${v}" ${
+            item.VENDEDOR === v ? 'selected' : ''
+          }>${v}</option>`
+        ).join('')}
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="edit_CANTIDAD_PASAJEROS">Cantidad Pasajeros</label>
+      <input type="number"
+             class="form-control"
+             id="edit_CANTIDAD_PASAJEROS"
+             name="CANTIDAD_PASAJEROS"
+             value="${item.CANTIDAD_PASAJEROS||0}"
+             readonly>
+    </div>`;
+
+  // ————————— Detalle de Pasajeros —————————
+  const numPax = parseInt(item.CANTIDAD_PASAJEROS) || 0;
+  for (let i = 1; i <= numPax; i++) {
+    form.innerHTML += `<h5>Pasajero ${i}</h5>`;
+    form.innerHTML += `
+      <div class="form-row">
+        <div class="form-group col-md-6">
+          <label for="edit_TABLAS_PAX${i}">Tablas</label>
+          <select class="form-control"
+                  id="edit_TABLAS_PAX${i}"
+                  name="TABLAS_PAX${i}">
+            <option value="">SELECCIONE</option>
+            ${TABLAS_OPTIONS.map(o =>
+              `<option value="${o}" ${
+                item[`TABLAS_PAX${i}`] === o ? 'selected' : ''
+              }>${o}</option>`
+            ).join('')}
+          </select>
+        </div>
+        <div class="form-group col-md-6">
+          <label for="edit_BOTAS_PAX${i}">Botas</label>
+          <select class="form-control"
+                  id="edit_BOTAS_PAX${i}"
+                  name="BOTAS_PAX${i}">
+            <option value="">SELECCIONE</option>
+            ${BOTAS_OPTIONS.map(o =>
+              `<option value="${o}" ${
+                item[`BOTAS_PAX${i}`] === o ? 'selected' : ''
+              }>${o}</option>`
+            ).join('')}
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group col-md-6">
+          <label for="edit_ROPA_PAX${i}">Ropa</label>
+          <select class="form-control"
+                  id="edit_ROPA_PAX${i}"
+                  name="ROPA_PAX${i}">
+            <option value="">SELECCIONE</option>
+            ${ROPA_OPTIONS.map(o =>
+              `<option value="${o}" ${
+                item[`ROPA_PAX${i}`] === o ? 'selected' : ''
+              }>${o}</option>`
+            ).join('')}
+          </select>
+        </div>
+        <div class="form-group col-md-6">
+          <label for="edit_CASCO_Y_ANTIPARRAS_PAX${i}">
+            Casco / Antiparras
+          </label>
+          <select class="form-control"
+                  id="edit_CASCO_Y_ANTIPARRAS_PAX${i}"
+                  name="CASCO_Y_ANTIPARRAS_PAX${i}">
+            <option value="">SELECCIONE</option>
+            ${CASCO_OPTIONS.map(o =>
+              `<option value="${o}" ${
+                item[`CASCO_Y_ANTIPARRAS_PAX${i}`] === o ? 'selected' : ''
+              }>${o}</option>`
+            ).join('')}
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group col-md-6">
+          <label for="edit_CLASES_PAX${i}">Clases</label>
+          <select class="form-control"
+                  id="edit_CLASES_PAX${i}"
+                  name="CLASES_PAX${i}">
+            <option value="">SELECCIONE</option>
+            ${CLASES_OPTIONS.map(o =>
+              `<option value="${o}" ${
+                item[`CLASES_PAX${i}`] === o ? 'selected' : ''
+              }>${o}</option>`
+            ).join('')}
+          </select>
+        </div>
+        <div class="form-group col-md-6">
+          <label for="edit_MONTO_ALQUILER_PAX${i}">
+            Monto Alquiler PAX ${i}
+          </label>
+          <input type="number"
+                 class="form-control"
+                 id="edit_MONTO_ALQUILER_PAX${i}"
+                 name="MONTO_ALQUILER_PAX${i}"
+                 step="0.01"
+                 value="${item[`MONTO_ALQUILER_PAX${i}`]||0}">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="edit_MONTO_CLASE_PAX${i}">
+          Monto Clase PAX ${i}
+        </label>
+        <input type="number"
+               class="form-control"
+               id="edit_MONTO_CLASE_PAX${i}"
+               name="MONTO_CLASE_PAX${i}"
+               step="0.01"
+               value="${item[`MONTO_CLASE_PAX${i}`]||0}">
+      </div>`;
+  }
+
+  // ————————— Resumen y Pago —————————
+  form.innerHTML += `
+    <hr>
+    <div class="form-group">
+      <label for="edit_MONTO_TOTAL_ALQUILER">Subtotal Alquiler</label>
+      <input type="number"
+             class="form-control"
+             id="edit_MONTO_TOTAL_ALQUILER"
+             name="MONTO_TOTAL_ALQUILER"
+             step="0.01"
+             value="${item.MONTO_TOTAL_ALQUILER||0}">
+    </div>
+    <div class="form-group">
+      <label for="edit_MONTO_TOTAL_CLASES">Subtotal Clases</label>
+      <input type="number"
+             class="form-control"
+             id="edit_MONTO_TOTAL_CLASES"
+             name="MONTO_TOTAL_CLASES"
+             step="0.01"
+             value="${item.MONTO_TOTAL_CLASES||0}">
+    </div>
+    <div class="form-group">
+      <label for="edit_DESCUENTO">Descuento</label>
+      <input type="number"
+             class="form-control"
+             id="edit_DESCUENTO"
+             name="DESCUENTO"
+             step="0.01"
+             value="${item.DESCUENTO||0}">
+    </div>
+    <div class="form-group">
+      <label for="edit_MONTO_TOTAL_FINAL">Monto Total Final</label>
+      <input type="number"
+             class="form-control"
+             id="edit_MONTO_TOTAL_FINAL"
+             name="MONTO_TOTAL_FINAL"
+             step="0.01"
+             value="${item.MONTO_TOTAL_FINAL||0}">
+    </div>
+
+    <div class="form-row">
+      <div class="form-group col-md-6">
+        <label for="edit_SI_PAGO_TOTAL">Se Pagó Total</label>
+        <select class="form-control"
+                id="edit_SI_PAGO_TOTAL"
+                name="SI_PAGO_TOTAL">
+          ${SI_PAGO_OPTIONS.map(o =>
+            `<option value="${o}" ${
+              item.SI_PAGO_TOTAL === o ? 'selected' : ''
+            }>${o}</option>`
+          ).join('')}
+        </select>
+      </div>
+      <div class="form-group col-md-6">
+        <label for="edit_METODO_DE_PAGO">Método de Pago</label>
+        <select class="form-control"
+                id="edit_METODO_DE_PAGO"
+                name="METODO_DE_PAGO">
+          ${METODO_PAGO_OPTIONS.map(o =>
+            `<option value="${o}" ${
+              item.METODO_DE_PAGO === o ? 'selected' : ''
+            }>${o}</option>`
+          ).join('')}
+        </select>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group col-md-6">
+        <label for="edit_PAGO_PARCIAL">Pago Parcial</label>
+        <input type="number"
+               class="form-control"
+               id="edit_PAGO_PARCIAL"
+               name="PAGO_PARCIAL"
+               step="0.01"
+               value="${item.PAGO_PARCIAL||0}">
+      </div>
+      <div class="form-group col-md-6">
+        <label for="edit_RESTA_PAGAR">Resta Pagar</label>
+        <input type="number"
+               class="form-control"
+               id="edit_RESTA_PAGAR"
+               name="RESTA_PAGAR"
+               step="0.01"
+               value="${item.RESTA_PAGAR||0}">
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group col-md-6">
+        <label for="edit_TIPO_DE_PAGO">Tipo de Pago</label>
+        <select class="form-control"
+                id="edit_TIPO_DE_PAGO"
+                name="TIPO_DE_PAGO">
+          ${TIPO_PAGO_OPTIONS.map(o =>
+            `<option value="${o}" ${
+              item.TIPO_DE_PAGO === o ? 'selected' : ''
+            }>${o}</option>`
+          ).join('')}
+        </select>
+      </div>
+      <div class="form-group">
+  <label for="edit_MONTO_PAGADO_PRE_RESERVA">Monto Pagado Pre-Reserva</label>
+  <input type="number"
+         class="form-control"
+         id="edit_MONTO_PAGADO_PRE_RESERVA"
+         name="MONTO_PAGADO_PRE_RESERVA"
+         step="0.01"
+         value="${item.MONTO_PAGADO_PRE_RESERVA||""}">
+</div>
+
+
+    </div>
+
+    <div class="form-group">
+      <label for="edit_ESTADO">Estado</label>
+      <select class="form-control"
+              id="edit_ESTADO"
+              name="ESTADO">
+        ${ESTADO_OPTIONS.map(o =>
+          `<option value="${o}" ${
+            item.ESTADO === o ? 'selected' : ''
+          }>${o}</option>`
+        ).join('')}
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="edit_OBSERVACIONES">Observaciones</label>
+      <textarea class="form-control"
+                id="edit_OBSERVACIONES"
+                name="OBSERVACIONES"
+                rows="3">${item.OBSERVACIONES||''}</textarea>
+    </div>`;
+
+  // ————————— Abrir modal —————————
+  document.getElementById('editReservationModal').style.display = 'flex';
+}
+
+// 4) Cerrar modal
+function closeEditReservationModal() {
+  document.getElementById('editReservationModal').style.display = 'none';
+}
+
+// 5) Enviar actualización al backend
+document.getElementById('updateReservationButton').addEventListener('click', () => {
+  const formEl = document.getElementById('editReservationForm');
+  const formData = new FormData(formEl);
+  const payload = {};
+  formData.forEach((v,k) => {
+  payload[k] = v; // FECHA ya viene en DD/MM/AAAA desde el modal
+});
+ // Mostrar spinner
+  loadingSpinner.style.display = 'flex';
+
+
+
+  fetch(`${appsScriptURL}?action=update`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain' },
+    body: JSON.stringify(payload)
+  })
+  .then(r => r.json())
+  .then(res => {
+    if (res.success) {
+      alert('Prerreservas actualizada correctamente');
+      closeEditReservationModal();
+      fetchLastReservations(); // refrescar lista
+    } else {
+      alert('Error al actualizar: ' + res.message);
+    }
+  })
+  .catch(e => {
+    console.error('Error en update:', e);
+    alert('Error de conexión al actualizar');
+  })
+  .finally(() => {
+    // Ocultar spinner al finalizar (éxito o error)
+    loadingSpinner.style.display = 'none';
+  });
+
+});
+
+// 6) Disparo inicial y cada vez que cambie el vendedor
+document.getElementById('vendedor').addEventListener('change', fetchLastReservations);
+document.addEventListener('DOMContentLoaded', fetchLastReservations);
